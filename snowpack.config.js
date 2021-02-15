@@ -2,6 +2,7 @@
 module.exports = {
   mount: {
     /* ... */
+    src: '/'
   },
   plugins: [
     /* ... */
