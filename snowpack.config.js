@@ -2,10 +2,11 @@
 module.exports = {
   mount: {
     /* ... */
-    src: '/'
+    src: '/',
   },
   plugins: [
     /* ... */
+    ['@snowpack/plugin-sass'],
   ],
   routes: [
     /* Enable an SPA Fallback in development: */
@@ -24,4 +25,4 @@ module.exports = {
   buildOptions: {
     /* ... */
   },
-};
+}
