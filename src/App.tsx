@@ -7,6 +7,7 @@ const clearCanvas = (ctx: CanvasRenderingContext2D) => {
 const refreshCanvas = (ctx: CanvasRenderingContext2D, states) => {
   clearCanvas(ctx);
   states.forEach(({ x, y, width, height, scale }) => {
+    console.log(scale)
     ctx.fillRect(x, y, width, height);
   });
 };
@@ -31,7 +32,7 @@ function App() {
       refreshCanvas(ctx, [current]);
     }
   });
-  const handleMouseDown = (e: MouseEvent) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     e.preventDefault();
     const newEl = {
       type: "rect",
@@ -39,12 +40,11 @@ function App() {
       y: e.clientY,
       width: 0,
       height: 0,
-      confirmed: false,
     };
     setDrawing(true);
     setCurrent(newEl);
   };
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     if (drawing) {
       //Do nothing for now
       e.preventDefault();
@@ -52,14 +52,14 @@ function App() {
         type: "rect",
         x: current.x,
         y: current.y,
-        width: Math.abs(e.clientX - current.x),
-        height: Math.abs(e.clientY - current.y),
-        confirmed: false,
+        width: (e.clientX - current.x),
+        height: (e.clientY - current.y),
       };
+      
       setCurrent(newEl);
     }
   };
-  const handleMouseUp = (e: MouseEvent) => {
+  const handleMouseUp = (e:React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     const newEl = {
       confirmed: true,
     };
