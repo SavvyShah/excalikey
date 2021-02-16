@@ -6,7 +6,7 @@ const clearCanvas = (ctx: CanvasRenderingContext2D) => {
 };
 const refreshCanvas = (ctx: CanvasRenderingContext2D, states) => {
   clearCanvas(ctx);
-  states.forEach(({ x, y, width, height, scale }) => {
+  states.forEach(({ x, y, width, height }) => {
     ctx.fillRect(x, y, width, height);
   });
 };
