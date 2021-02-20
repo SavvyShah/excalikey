@@ -6,7 +6,7 @@ import trashIcon from "./assets/icons/trash.svg";
 import Island from "./components/Island";
 import Button from "./components/Button";
 
-import type { Shape } from "./services/hooks/useRenderer";
+import { ShapeTypes } from "./services/hooks/useRenderer";
 import useRenderer from "./services/hooks/useRenderer";
 
 function App(): JSX.Element {
@@ -18,33 +18,22 @@ function App(): JSX.Element {
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
-    const newEl: Shape = {
-      type: "rectangle",
-      x: e.clientX,
-      y: e.clientY,
-      width: 0,
-      height: 0,
+    setDrawing(true);
+    Renderer.setCurrent({
+      type: ShapeTypes.triangle,
+      start: { x: e.clientX, y: e.clientY },
+      end: { x: e.clientX, y: e.clientY },
       fill: `rgb(${Math.random() * 256},${Math.random() * 256},${
         Math.random() * 256
       })`
-    };
-    setDrawing(true);
-    Renderer.setCurrent(newEl);
+    });
   };
   const handleMouseMove = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     if (drawing) {
       e.preventDefault();
-      if (Renderer.current.type == "rectangle") {
-        const newEl = {
-          x: Renderer.current.x,
-          y: Renderer.current.y,
-          width: e.clientX - Renderer.current.x,
-          height: e.clientY - Renderer.current.y
-        };
-        Renderer.setCurrent({ ...Renderer.current, ...newEl });
-      }
+      Renderer.setCurrent({ end: { x: e.clientX, y: e.clientY } });
     }
   };
   const handleMouseUp = (
