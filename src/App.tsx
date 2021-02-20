@@ -1,84 +1,83 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.scss";
 
-const clearCanvas = (ctx: CanvasRenderingContext2D) => {
-  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-};
-const refreshCanvas = (ctx: CanvasRenderingContext2D, states) => {
-  clearCanvas(ctx);
-  states.forEach(({ x, y, width, height }) => {
-    ctx.fillRect(x, y, width, height);
-  });
-};
-function App() {
-  const canvasRef = useRef();
-  const ctx: CanvasRenderingContext2D =
-    canvasRef.current && canvasRef.current.getContext("2d");
-  const [state, setState] = useState([]);
-  const [current, setCurrent] = useState({
-    type: "rect",
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-  });
-  const [drawing, setDrawing] = useState(false);
+import trashIcon from "./assets/icons/trash.svg";
 
-  useEffect(() => {
-    if (ctx && state.length) {
-      refreshCanvas(ctx, [...state, current]);
-    } else if (ctx) {
-      refreshCanvas(ctx, [current]);
-    }
-  });
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+import Island from "./components/Island";
+import Button from "./components/Button";
+
+import type { Shape } from "./services/hooks/useRenderer";
+import useRenderer from "./services/hooks/useRenderer";
+
+function App(): JSX.Element {
+  const canvasRef = useRef();
+  const [drawing, setDrawing] = useState<boolean>(false);
+  const Renderer = useRenderer(canvasRef.current);
+
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+  ) => {
     e.preventDefault();
-    const newEl = {
-      type: "rect",
+    const newEl: Shape = {
+      type: "rectangle",
       x: e.clientX,
       y: e.clientY,
       width: 0,
       height: 0,
+      fill: `rgb(${Math.random() * 256},${Math.random() * 256},${
+        Math.random() * 256
+      })`
     };
     setDrawing(true);
-    setCurrent(newEl);
+    Renderer.setCurrent(newEl);
   };
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+  const handleMouseMove = (
+    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+  ) => {
     if (drawing) {
-      //Do nothing for now
       e.preventDefault();
-      const newEl = {
-        type: "rect",
-        x: current.x,
-        y: current.y,
-        width: (e.clientX - current.x),
-        height: (e.clientY - current.y),
-      };
-      
-      setCurrent(newEl);
+      if (Renderer.current.type == "rectangle") {
+        const newEl = {
+          x: Renderer.current.x,
+          y: Renderer.current.y,
+          width: e.clientX - Renderer.current.x,
+          height: e.clientY - Renderer.current.y
+        };
+        Renderer.setCurrent({ ...Renderer.current, ...newEl });
+      }
     }
   };
-  const handleMouseUp = (e:React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
-    const newEl = {
-      confirmed: true,
-    };
-    const newState = [...state];
-    newState.push({ ...current, ...newEl });
+  const handleMouseUp = (
+    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+  ) => {
+    e.preventDefault();
+    Renderer.addCurrent();
     setDrawing(false);
-    setState(newState);
   };
 
   return (
-    <canvas
-      width={window.innerWidth}
-      height={window.innerHeight}
-      ref={canvasRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-    >
-      Canvas not supported
-    </canvas>
+    <div>
+      <Island className="fixed">
+        <Button
+          className="button"
+          onClick={() => {
+            Renderer.clear();
+          }}
+        >
+          <img className="icon" src={trashIcon} alt="trash" />
+        </Button>
+      </Island>
+      <canvas
+        width={window.innerWidth}
+        height={window.innerHeight}
+        ref={canvasRef}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+      >
+        Canvas not supported
+      </canvas>
+    </div>
   );
 }
 
