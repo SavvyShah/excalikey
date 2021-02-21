@@ -12,6 +12,7 @@ import useRenderer from "./services/hooks/useRenderer";
 function App(): JSX.Element {
   const canvasRef = useRef();
   const [drawing, setDrawing] = useState<boolean>(false);
+  const [shape, setShape] = useState<ShapeTypes>(ShapeTypes.rectangle);
   const Renderer = useRenderer(canvasRef.current);
 
   const handleMouseDown = (
@@ -20,7 +21,7 @@ function App(): JSX.Element {
     e.preventDefault();
     setDrawing(true);
     Renderer.setCurrent({
-      type: ShapeTypes.triangle,
+      type: shape,
       start: { x: e.clientX, y: e.clientY },
       end: { x: e.clientX, y: e.clientY },
       fill: `rgb(${Math.random() * 256},${Math.random() * 256},${
@@ -54,6 +55,18 @@ function App(): JSX.Element {
           }}
         >
           <img className="icon" src={trashIcon} alt="trash" />
+        </Button>
+        <Button
+          className="button"
+          onClick={() => setShape(ShapeTypes.triangle)}
+        >
+          Triangle
+        </Button>
+        <Button
+          className="button"
+          onClick={() => setShape(ShapeTypes.rectangle)}
+        >
+          Rectangle
         </Button>
       </Island>
       <canvas
