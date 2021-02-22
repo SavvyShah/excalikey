@@ -10,7 +10,7 @@ const IconButtonTray = styled.div`
   display: flex;
 `;
 
-export const IconButton = styled.button`
+export const IconButton = styled.button<{ selected: boolean }>`
   background-color: ${(props) => (props.selected ? `#8c8c8c` : `#ced4da`)};
   width: 2.5rem;
   height: 2.5rem;

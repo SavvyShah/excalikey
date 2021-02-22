@@ -5,7 +5,6 @@ import trashIcon from "./assets/icons/trash.svg";
 import rectangleIcon from "../assets/icons/rectangle.svg";
 import triangleIcon from "../assets/icons/triangle.svg";
 
-import Island from "./components/Island";
 import Button from "./components/Button";
 
 import { ShapeTypes } from "./services/hooks/useRenderer";
@@ -13,18 +12,21 @@ import useRenderer from "./services/hooks/useRenderer";
 import IconTray, { IconButton } from "./components/IconTray";
 
 function App(): JSX.Element {
-  const canvasRef = useRef();
+  const canvasRef = useRef(null);
   const [drawing, setDrawing] = useState<boolean>(false);
   const [selectedElement, setSelectedElement] = useState<ShapeTypes>(
     ShapeTypes.rectangle
   );
-  const Renderer = useRenderer(canvasRef.current);
+  const Renderer = useRenderer(canvasRef);
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
     setDrawing(true);
+    if (Renderer == null) {
+      return null;
+    }
     Renderer.setCurrent({
       type: selectedElement,
       start: { x: e.clientX, y: e.clientY },
@@ -39,6 +41,9 @@ function App(): JSX.Element {
   ) => {
     if (drawing) {
       e.preventDefault();
+      if (Renderer == null) {
+        return null;
+      }
       Renderer.setCurrent({ end: { x: e.clientX, y: e.clientY } });
     }
   };
@@ -46,6 +51,9 @@ function App(): JSX.Element {
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
+    if (Renderer == null) {
+      return null;
+    }
     Renderer.addCurrent();
     setDrawing(false);
   };
@@ -56,6 +64,9 @@ function App(): JSX.Element {
         <Button
           className="button"
           onClick={() => {
+            if (Renderer == null) {
+              return null;
+            }
             Renderer.clear();
           }}
         >
