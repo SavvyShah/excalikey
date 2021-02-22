@@ -1,4 +1,5 @@
 import styled from "styled-components";
+
 const Island = styled.div`
   background-color: hsla(0, 0%, 100%, 0.9);
   backdrop-filter: saturate(100%) blur(10px);
