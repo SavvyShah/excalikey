@@ -2,17 +2,22 @@ import React, { useRef, useState } from "react";
 import "./App.scss";
 
 import trashIcon from "./assets/icons/trash.svg";
+import rectangleIcon from "../assets/icons/rectangle.svg";
+import triangleIcon from "../assets/icons/triangle.svg";
 
 import Island from "./components/Island";
 import Button from "./components/Button";
 
 import { ShapeTypes } from "./services/hooks/useRenderer";
 import useRenderer from "./services/hooks/useRenderer";
+import IconTray, { IconButton } from "./components/IconTray";
 
 function App(): JSX.Element {
   const canvasRef = useRef();
   const [drawing, setDrawing] = useState<boolean>(false);
-  const [shape, setShape] = useState<ShapeTypes>(ShapeTypes.rectangle);
+  const [selectedElement, setSelectedElement] = useState<ShapeTypes>(
+    ShapeTypes.rectangle
+  );
   const Renderer = useRenderer(canvasRef.current);
 
   const handleMouseDown = (
@@ -21,7 +26,7 @@ function App(): JSX.Element {
     e.preventDefault();
     setDrawing(true);
     Renderer.setCurrent({
-      type: shape,
+      type: selectedElement,
       start: { x: e.clientX, y: e.clientY },
       end: { x: e.clientX, y: e.clientY },
       fill: `rgb(${Math.random() * 256},${Math.random() * 256},${
@@ -47,7 +52,7 @@ function App(): JSX.Element {
 
   return (
     <div>
-      <Island className="fixed">
+      <IconTray className="fixed">
         <Button
           className="button"
           onClick={() => {
@@ -56,19 +61,23 @@ function App(): JSX.Element {
         >
           <img className="icon" src={trashIcon} alt="trash" />
         </Button>
-        <Button
-          className="button"
-          onClick={() => setShape(ShapeTypes.triangle)}
+      </IconTray>
+      <IconTray className="fixed-h-center">
+        <IconButton
+          selected={selectedElement === ShapeTypes.rectangle}
+          onClick={() => setSelectedElement(ShapeTypes.rectangle)}
+          className="margin-025"
         >
-          Triangle
-        </Button>
-        <Button
-          className="button"
-          onClick={() => setShape(ShapeTypes.rectangle)}
+          <img src={rectangleIcon} alt="rectangle" />
+        </IconButton>
+        <IconButton
+          selected={selectedElement === ShapeTypes.triangle}
+          onClick={() => setSelectedElement(ShapeTypes.triangle)}
+          className="margin-025"
         >
-          Rectangle
-        </Button>
-      </Island>
+          <img src={triangleIcon} alt="triangle" />
+        </IconButton>
+      </IconTray>
       <canvas
         width={window.innerWidth}
         height={window.innerHeight}

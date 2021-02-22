@@ -1,9 +1,51 @@
 body {
   margin: 0px;
 }
-.fixed{
-  position: fixed
+.fixed {
+  position: fixed;
 }
-.button{
+.fixed-h-center {
+  position: fixed;
+  left: 50%;
+}
+.button {
+}
 
+@for $i from 1 through 3 {
+  .pad-l-#{$i} {
+    padding-left: $i * 0.5rem;
+  }
+  .pad-r-#{$i} {
+    padding-right: $i * 0.5rem;
+  }
+  .pad-#{$i} {
+    padding: $i * 0.5rem;
+  }
+  .pad-v-#{$i} {
+    padding: $i * 0.5rem;
+  }
+  .pad-h-#{$i} {
+    padding: $i * 0.5rem;
+  }
+}
+
+.margin-025{
+  margin:0.25rem
+}
+@for $i from 1 through 3 {
+  .margin-l-#{$i} {
+    margin-left: $i * 0.5rem;
+  }
+  .margin-r-#{$i} {
+    margin-right: $i * 0.5rem;
+  }
+  .margin-#{$i} {
+    margin: $i * 0.5rem;
+  }
+  .margin-v-#{$i} {
+    margin: $i * 0.5rem;
+  }
+  .margin-h-#{$i} {
+    margin: $i * 0.5rem;
+  }
 }
