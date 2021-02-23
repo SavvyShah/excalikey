@@ -2,8 +2,6 @@ import React, { useRef, useState } from "react";
 import "./App.scss";
 
 import trashIcon from "./assets/icons/trash.svg";
-import rectangleIcon from "../assets/icons/rectangle.svg";
-import triangleIcon from "../assets/icons/triangle.svg";
 
 import Button from "./components/Button";
 
@@ -69,8 +67,9 @@ function App(): JSX.Element {
             }
             Renderer.clear();
           }}
+          active={false}
         >
-          <img className="icon" src={trashIcon} alt="trash" />
+          <img src={trashIcon} className="icon" alt="trash" />
         </Button>
       </IconTray>
       <IconTray className="fixed-h-center">
@@ -79,14 +78,14 @@ function App(): JSX.Element {
           onClick={() => setSelectedElement(ShapeTypes.rectangle)}
           className="margin-025"
         >
-          <img src={rectangleIcon} alt="rectangle" />
+          <img alt="rectangle" />
         </IconButton>
         <IconButton
           selected={selectedElement === ShapeTypes.triangle}
           onClick={() => setSelectedElement(ShapeTypes.triangle)}
           className="margin-025"
         >
-          <img src={triangleIcon} alt="triangle" />
+          <img alt="triangle" />
         </IconButton>
       </IconTray>
       <canvas

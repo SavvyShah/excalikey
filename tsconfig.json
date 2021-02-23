@@ -1,21 +1,13 @@
 {
-  "include": ["src", "types"],
-  "exclude": ["node_modules"],
   "compilerOptions": {
-    "module": "esnext",
-    "target": "esnext",
     "moduleResolution": "node",
-    "jsx": "preserve",
-    "baseUrl": "./",
-    "paths": { "*": ["web_modules/.types/*"] },
-    "allowSyntheticDefaultImports": true,
-    "importsNotUsedAsValues": "error",
-    /* noEmit - We only use TypeScript for type checking. */
-    "noEmit": true,
-    /* Additional Options */
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
-  }
+    "outDir": "./public/",
+    "noImplicitAny": false,
+    "module": "es6",
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src"]
 }

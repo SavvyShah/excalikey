@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-const Button = styled.button`
+const Button = styled.button<{ active: boolean }>`
   background-color: ${(props) => (props.active ? `#adb5bd` : `#ced4da`)};
   width: 2.5rem;
   height: 2.5rem;

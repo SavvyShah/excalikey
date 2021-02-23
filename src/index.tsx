@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 import {} from "styled-components/cssprop";
 
-import App from "./App.jsx";
+import App from "./App";
 
 ReactDOM.render(
   <React.StrictMode>
@@ -11,11 +11,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
-
-// Hot Module Replacement (HMR) - Remove this snippet to remove HMR.
-// Learn more: https://www.snowpack.dev/concepts/hot-module-replacement
-//@ts-ignore
-if (import.meta.hot) {
-  //@ts-ignore
-  import.meta.hot.accept();
-}

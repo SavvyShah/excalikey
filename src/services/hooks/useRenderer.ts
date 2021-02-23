@@ -117,10 +117,7 @@ const refreshCanvas = (canvasEl: HTMLCanvasElement, states: Array<Shape>) => {
 
 const useRenderer = (
   canvasRef: React.RefObject<HTMLCanvasElement>
-): Renderer | null => {
-  if (!canvasRef.current) {
-    return null;
-  }
+): Renderer => {
   const canvasEl: HTMLCanvasElement = canvasRef.current;
   const [current, setCurrent] = useState<Current>(BaseCurrent);
   const [canvasState, setCanvasState] = useState<Array<Shape>>([]);
@@ -141,8 +138,10 @@ const useRenderer = (
   };
 
   useEffect(() => {
-    const currentShape = render(current);
-    refreshCanvas(canvasEl, [...canvasState, currentShape]);
+    if (canvasEl) {
+      const currentShape = render(current);
+      refreshCanvas(canvasEl, [...canvasState, currentShape]);
+    }
   }, [canvasState, current]);
 
   return Renderer;
