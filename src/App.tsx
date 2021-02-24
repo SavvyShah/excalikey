@@ -2,6 +2,8 @@ import React, { useRef, useState } from "react";
 import "./App.scss";
 
 import trashIcon from "./assets/icons/trash.svg";
+import rectangleIcon from "./assets/icons/rectangle.svg";
+import triangleIcon from "./assets/icons/triangle.svg";
 
 import Button from "./components/Button";
 
@@ -78,14 +80,14 @@ function App(): JSX.Element {
           onClick={() => setSelectedElement(ShapeTypes.rectangle)}
           className="margin-025"
         >
-          <img alt="rectangle" />
+          <img src={rectangleIcon} alt="rectangle" />
         </IconButton>
         <IconButton
           selected={selectedElement === ShapeTypes.triangle}
           onClick={() => setSelectedElement(ShapeTypes.triangle)}
           className="margin-025"
         >
-          <img alt="triangle" />
+          <img src={triangleIcon} alt="triangle" />
         </IconButton>
       </IconTray>
       <canvas

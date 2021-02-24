@@ -1,6 +1,6 @@
-const { Polygon } = require("./index");
+import { Polygon } from "./index";
 
-describe("Point inside Bounding box", () => {
+describe("Shape polygon contains method", () => {
   test("is inside bounding box of rectangle", () => {
     const rectangle = new Polygon([
       { x: 10, y: 10 },

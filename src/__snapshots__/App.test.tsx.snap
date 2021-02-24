@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div>
+  <div
+    className="sc-gsTCUz fEHyKW fixed"
+  >
+    <button
+      className="sc-bdfBwQ gWROIb button"
+      onClick={[Function]}
+    >
+      <img
+        alt="trash"
+        className="icon"
+        src="test-file-stub"
+      />
+    </button>
+  </div>
+  <div
+    className="sc-gsTCUz fEHyKW fixed-h-center"
+  >
+    <button
+      className="sc-dlfnbm iOkfdG margin-025"
+      onClick={[Function]}
+      selected={true}
+    >
+      <img
+        alt="rectangle"
+        src="test-file-stub"
+      />
+    </button>
+    <button
+      className="sc-dlfnbm BpUtO margin-025"
+      onClick={[Function]}
+      selected={false}
+    >
+      <img
+        alt="triangle"
+        src="test-file-stub"
+      />
+    </button>
+  </div>
+  <canvas
+    height={768}
+    onMouseDown={[Function]}
+    onMouseMove={[Function]}
+    onMouseUp={[Function]}
+    width={1024}
+  >
+    Canvas not supported
+  </canvas>
+</div>
+`;

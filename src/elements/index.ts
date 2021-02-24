@@ -30,8 +30,7 @@ export class Polygon extends Shape {
 
   constructor(points: Array<Point>) {
     super({ type: ShapeTypes.polygon });
-    this._points = points;
-    this._boundingRect = new BoundingRect();
+    this.points = points;
   }
   get points(): Array<Point> {
     return this._points;
@@ -66,14 +65,13 @@ export class Polygon extends Shape {
   private _getWindingNumber(P: Point): number {
     return 0;
   }
-  private _isInBoundingBox(P: Point) {
+  private _isInBoundingBox(P: Point): boolean {
     const B = this._boundingRect;
-    return P.x > B.min.x && P.x < B.max.x && P.y > B.min.y && P.y < B.max.y;
+    return P.x >= B.min.x && P.x <= B.max.x && P.y >= B.min.y && P.y <= B.max.y;
   }
   contains(P: Point): boolean {
-    const B = this._boundingRect;
     //Check if element is in bounding box
+    return this._isInBoundingBox(P);
     //If shape is not a rectangle then getWindingNumber
-    return false;
   }
 }
