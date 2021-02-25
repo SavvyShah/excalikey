@@ -61,7 +61,7 @@ export class Stroke {
   }
 }
 
-interface ExcaliShape extends Shape {
+export interface ExcaliShape extends Shape {
   contains(P: Point): boolean;
 }
 
@@ -142,7 +142,10 @@ abstract class Polygon implements ExcaliShape {
 export class Rectangle extends Polygon {
   readonly height: number;
   readonly width: number;
-  constructor(points: Point[], config?: Shape) {
+  constructor(
+    points: Point[] = [Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0)],
+    config?: Shape
+  ) {
     super({ ...config, type: ShapeTypes.rectangle }, points);
   }
   contains(P: Point): boolean {

@@ -1,5 +1,7 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./App.scss";
+
+import rough from "roughjs";
 
 import trashIcon from "./assets/icons/trash.svg";
 import rectangleIcon from "./assets/icons/rectangle.svg";
@@ -7,70 +9,82 @@ import triangleIcon from "./assets/icons/triangle.svg";
 
 import Button from "./components/Button";
 
-import { ShapeTypes } from "./services/hooks/useRenderer";
-import useRenderer from "./services/hooks/useRenderer";
+import { Rectangle, Triangle, ExcaliShape, ShapeTypes } from "./elements";
 import IconTray, { IconButton } from "./components/IconTray";
+import { Drawable } from "roughjs/bin/core";
+
+interface Shape {
+  drawable: Drawable;
+  x: number;
+  y: number;
+}
 
 function App(): JSX.Element {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>();
   const [drawing, setDrawing] = useState<boolean>(false);
   const [selectedElement, setSelectedElement] = useState<ShapeTypes>(
     ShapeTypes.rectangle
   );
-  const Renderer = useRenderer(canvasRef);
+  const [current, setCurrent] = useState<Shape>();
+
+  useEffect(() => {
+    if (current && current.drawable) {
+      const roughCanvas = rough.canvas(canvasRef.current);
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      roughCanvas.draw(current.drawable);
+    }
+  }, [current]);
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
+    const roughCanvas = rough.canvas(canvasRef.current);
+    const generator = roughCanvas.generator;
+    const rectangle = generator.rectangle(e.clientX, e.clientY, 0, 0);
+    const shape = {
+      x: e.clientX,
+      y: e.clientY,
+      drawable: rectangle
+    };
+    setCurrent(shape);
     setDrawing(true);
-    if (Renderer == null) {
-      return null;
-    }
-    Renderer.setCurrent({
-      type: selectedElement,
-      start: { x: e.clientX, y: e.clientY },
-      end: { x: e.clientX, y: e.clientY },
-      fill: `rgb(${Math.random() * 256},${Math.random() * 256},${
-        Math.random() * 256
-      })`
-    });
   };
   const handleMouseMove = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     if (drawing) {
       e.preventDefault();
-      if (Renderer == null) {
-        return null;
-      }
-      Renderer.setCurrent({ end: { x: e.clientX, y: e.clientY } });
+      const roughCanvas = rough.canvas(canvasRef.current);
+      const generator = roughCanvas.generator;
+      const rectangle = generator.rectangle(
+        current.x,
+        current.y,
+        e.clientX - current.x,
+        e.clientY - current.y
+      );
+      const shape = {
+        x: current.x,
+        y: current.y,
+        drawable: rectangle
+      };
+      setCurrent(shape);
     }
   };
   const handleMouseUp = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
-    if (Renderer == null) {
-      return null;
-    }
-    Renderer.addCurrent();
     setDrawing(false);
+    setCurrent({ x: 0, y: 0, drawable: null });
   };
 
   return (
     <div>
       <IconTray className="fixed">
-        <Button
-          className="button"
-          onClick={() => {
-            if (Renderer == null) {
-              return null;
-            }
-            Renderer.clear();
-          }}
-          active={false}
-        >
+        <Button className="button" active={false}>
           <img src={trashIcon} className="icon" alt="trash" />
         </Button>
       </IconTray>
@@ -103,5 +117,4 @@ function App(): JSX.Element {
     </div>
   );
 }
-
 export default App;

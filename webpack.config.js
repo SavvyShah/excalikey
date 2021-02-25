@@ -23,7 +23,10 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: [".tsx", ".ts", ".js", ".svg"]
+    extensions: [".tsx", ".ts", ".js", ".svg"],
+    alias: {
+      roughjs: path.resolve("./node_modules/roughjs/bundled/rough.esm.js")
+    }
   },
   module: {
     // If you want to load some other stuff https://webpack.js.org/guides/asset-management
