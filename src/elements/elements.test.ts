@@ -1,4 +1,4 @@
-import { Point, Rectangle, Triangle } from "./index";
+import { point, Rectangle, Triangle } from "./index";
 
 describe("Rectangle.contains()", () => {
   test("is inside rectangle", () => {
@@ -26,10 +26,10 @@ describe("Rectangle.contains()", () => {
 describe("Triangle.contains()", () => {
   test("is inside triangle", () => {
     const triangle = new Triangle([
-      Point(10, 20),
-      Point(20, 20),
-      Point(15, 30)
+      point(10, 20),
+      point(20, 20),
+      point(15, 30)
     ]);
-    expect(triangle.contains(Point(15, 25))).toBe(true);
+    expect(triangle.contains(point(15, 25))).toBe(true);
   });
 });

@@ -11,12 +11,12 @@ export enum fillStyles {
   zigzagLine = "zigzag-line"
 }
 
-type Point = {
+export type Point = {
   x: number;
   y: number;
 };
 
-export const Point = (x: number, y: number): Point => {
+export const point = (x: number, y: number): Point => {
   return { x, y };
 };
 
@@ -142,10 +142,7 @@ abstract class Polygon implements ExcaliShape {
 export class Rectangle extends Polygon {
   readonly height: number;
   readonly width: number;
-  constructor(
-    points: Point[] = [Point(0, 0), Point(0, 0), Point(0, 0), Point(0, 0)],
-    config?: Shape
-  ) {
+  constructor(points: [Point, Point, Point, Point], config?: Shape) {
     super({ ...config, type: ShapeTypes.rectangle }, points);
   }
   contains(P: Point): boolean {
@@ -154,7 +151,7 @@ export class Rectangle extends Polygon {
   }
 }
 export class Triangle extends Polygon {
-  constructor(points: Point[], config?: Shape) {
+  constructor(points: [Point, Point, Point], config?: Shape) {
     super({ ...config, type: ShapeTypes.rectangle }, points);
   }
   contains(P: Point): boolean {

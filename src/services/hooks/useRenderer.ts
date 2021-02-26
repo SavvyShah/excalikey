@@ -1,50 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, MutableRefObject } from "react";
+
+import rough from "roughjs";
+import { RoughCanvas } from "roughjs/bin/canvas";
+import { Drawable } from "roughjs/bin/core";
+import { ExcaliShape, Rectangle, Triangle, point, Point } from "../../elements";
 
 export enum ShapeTypes {
   rectangle = "rectangle",
   triangle = "triangle"
 }
-
-type Point = {
-  x: number;
-  y: number;
-};
-
-type Rectangle = {
-  type: ShapeTypes.rectangle;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fill: string;
-};
-
-type Triangle = {
-  type: ShapeTypes.triangle;
-  points: [Point, Point, Point];
-  fill: string;
-};
-
-type Current = {
-  type: ShapeTypes;
-  start: Point;
-  end: Point;
-  fill: string;
-};
-
-const BaseCurrent = {
-  type: ShapeTypes.rectangle,
-  start: { x: 0, y: 0 },
-  end: { x: 0, y: 0 },
-  fill: "black"
-};
-
-type Update = {
-  type?: ShapeTypes;
-  start?: Point;
-  end?: Point;
-  fill?: string;
-};
 
 interface Renderer {
   addCurrent: () => void;
@@ -52,80 +16,83 @@ interface Renderer {
   setCurrent: (update: Update) => void;
 }
 
-export type Shape = Rectangle | Triangle | null;
+const Config = {
+  options: null
+};
 
-const render = (current: Current): Shape => {
-  if (current === null) {
-    return null;
-  }
-  const { type, start, end, fill } = current;
-  if (type === "rectangle") {
-    return {
-      type: ShapeTypes.rectangle,
-      x: start.x,
-      y: start.y,
-      width: end.x - start.x,
-      height: end.y - start.y,
-      fill
-    } as Shape;
-  } else if (type === "triangle") {
-    return {
-      type: ShapeTypes.triangle,
-      points: [
-        start,
-        { x: start.x + (end.x - start.x) / 2, y: end.y },
-        { x: end.x, y: start.y }
-      ],
-      fill
-    } as Shape;
-  } else {
-    return null;
-  }
+type Current = {
+  drawable: Drawable;
+  type: ShapeTypes;
+  start: Point;
+  end: Point;
 };
-const clearCanvas = (canvasEl: HTMLCanvasElement) => {
-  const ctx: CanvasRenderingContext2D = canvasEl.getContext(
-    "2d"
-  ) as CanvasRenderingContext2D;
-  ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+const BaseCurrent: Current = {
+  drawable: null,
+  type: ShapeTypes.rectangle,
+  start: point(0, 0),
+  end: point(0, 0)
 };
-const refreshCanvas = (canvasEl: HTMLCanvasElement, states: Array<Shape>) => {
-  const ctx: CanvasRenderingContext2D = canvasEl.getContext(
-    "2d"
-  ) as CanvasRenderingContext2D;
-  clearCanvas(canvasEl);
-  states.forEach((state) => {
-    if (state === null) {
-      return null;
+type Update = {
+  type?: ShapeTypes;
+  start?: Point;
+  end?: Point;
+};
+
+type RenderState =
+  | {
+      drawable: Drawable;
+      shape: ExcaliShape;
     }
-    if (state.type === "rectangle") {
-      const { x, y, width, height, fill } = state;
-      ctx.fillStyle = fill;
-      ctx.fillRect(x, y, width, height);
-      ctx.fillStyle = "black";
-    } else if (state.type === "triangle") {
-      const points = state.points;
-      ctx.fillStyle = state.fill;
-      ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
-      ctx.lineTo(points[1].x, points[1].y);
-      ctx.lineTo(points[2].x, points[2].y);
-      ctx.fill();
-      ctx.fillStyle = "black";
-    }
+  | Current;
+
+const clearCanvas = (canvas: HTMLCanvasElement) => {
+  canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+};
+
+const refreshCanvas = (
+  canvas: HTMLCanvasElement,
+  roughCanvas: RoughCanvas,
+  state: RenderState[]
+) => {
+  clearCanvas(canvas);
+  state.forEach((shape) => {
+    if (shape && shape.drawable) roughCanvas.draw(shape.drawable);
   });
 };
 
-const useRenderer = (
-  canvasRef: React.RefObject<HTMLCanvasElement>
-): Renderer => {
-  const canvasEl: HTMLCanvasElement = canvasRef.current;
+const useRenderer = (): [
+  ref: MutableRefObject<HTMLCanvasElement>,
+  Renderer: Renderer
+] => {
+  const canvasRef = useRef<HTMLCanvasElement>();
+  const roughCanvasRef = useRef<RoughCanvas>();
   const [current, setCurrent] = useState<Current>(BaseCurrent);
-  const [canvasState, setCanvasState] = useState<Array<Shape>>([]);
+  const [canvasState, setCanvasState] = useState<RenderState[]>([]);
 
-  const Renderer = {
+  useEffect(() => {
+    roughCanvasRef.current = rough.canvas(canvasRef.current, Config);
+  }, []);
+
+  const Renderer: Renderer = {
     addCurrent: () => {
-      const currentShape = render(current);
-      setCanvasState([...canvasState, currentShape]);
+      let shape: ExcaliShape;
+      if (current.type === ShapeTypes.rectangle) {
+        const { start, end } = current;
+        shape = new Rectangle([
+          start,
+          point(end.x, start.y),
+          end,
+          point(start.x, end.y)
+        ]);
+      } else if (current.type === ShapeTypes.triangle) {
+        const { start, end } = current;
+        shape = new Triangle([
+          start,
+          point(end.x, start.y),
+          point(start.x + (end.x - start.x) / 2, end.y)
+        ]);
+      }
+      setCanvasState([...canvasState, { shape, drawable: current.drawable }]);
       setCurrent(BaseCurrent);
     },
     clear: () => {
@@ -133,18 +100,37 @@ const useRenderer = (
       setCurrent(BaseCurrent);
     },
     setCurrent: (update: Update) => {
-      setCurrent({ ...current, ...update });
+      let drawable: Drawable;
+      const { start, end, type } = { ...current, ...update };
+      if (type === ShapeTypes.rectangle) {
+        drawable = roughCanvasRef.current.generator.rectangle(
+          start.x,
+          start.y,
+          end.x - start.x,
+          end.y - start.y
+        );
+      }
+      if (type === ShapeTypes.triangle) {
+        drawable = roughCanvasRef.current.generator.polygon([
+          [start.x, start.y],
+          [end.x, start.y],
+          [start.x + (end.x - start.x) / 2, end.y]
+        ]);
+      }
+      setCurrent({ ...current, ...update, drawable });
     }
   };
 
   useEffect(() => {
-    if (canvasEl) {
-      const currentShape = render(current);
-      refreshCanvas(canvasEl, [...canvasState, currentShape]);
+    if (roughCanvasRef && roughCanvasRef.current) {
+      refreshCanvas(canvasRef.current, roughCanvasRef.current, [
+        ...canvasState,
+        current
+      ]);
     }
   }, [canvasState, current]);
 
-  return Renderer;
+  return [canvasRef, Renderer];
 };
 
 export default useRenderer;
