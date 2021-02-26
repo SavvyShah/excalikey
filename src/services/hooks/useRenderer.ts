@@ -25,17 +25,23 @@ type Current = {
   type: ShapeTypes;
   start: Point;
   end: Point;
+  fill: string;
+  stroke: string;
 };
 const BaseCurrent: Current = {
   drawable: null,
   type: ShapeTypes.rectangle,
   start: point(0, 0),
-  end: point(0, 0)
+  end: point(0, 0),
+  fill: "black",
+  stroke: "black"
 };
 type Update = {
   type?: ShapeTypes;
   start?: Point;
   end?: Point;
+  fill?: string;
+  stroke?: string;
 };
 
 type RenderState =
@@ -55,9 +61,11 @@ const refreshCanvas = (
   state: RenderState[]
 ) => {
   clearCanvas(canvas);
-  state.forEach((shape) => {
-    if (shape && shape.drawable) roughCanvas.draw(shape.drawable);
-  });
+  state
+    .filter((shape) => shape && shape.drawable)
+    .forEach((shape) => {
+      roughCanvas.draw(shape.drawable);
+    });
 };
 
 const useRenderer = (): [
@@ -93,7 +101,7 @@ const useRenderer = (): [
         ]);
       }
       setCanvasState([...canvasState, { shape, drawable: current.drawable }]);
-      setCurrent(BaseCurrent);
+      setCurrent({ ...BaseCurrent, ...current });
     },
     clear: () => {
       setCanvasState([]);
@@ -101,21 +109,25 @@ const useRenderer = (): [
     },
     setCurrent: (update: Update) => {
       let drawable: Drawable;
-      const { start, end, type } = { ...current, ...update };
+      const { start, end, type, fill, stroke } = { ...current, ...update };
       if (type === ShapeTypes.rectangle) {
         drawable = roughCanvasRef.current.generator.rectangle(
           start.x,
           start.y,
           end.x - start.x,
-          end.y - start.y
+          end.y - start.y,
+          { fill, stroke }
         );
       }
       if (type === ShapeTypes.triangle) {
-        drawable = roughCanvasRef.current.generator.polygon([
-          [start.x, start.y],
-          [end.x, start.y],
-          [start.x + (end.x - start.x) / 2, end.y]
-        ]);
+        drawable = roughCanvasRef.current.generator.polygon(
+          [
+            [start.x, start.y],
+            [end.x, start.y],
+            [start.x + (end.x - start.x) / 2, end.y]
+          ],
+          { fill, stroke }
+        );
       }
       setCurrent({ ...current, ...update, drawable });
     }

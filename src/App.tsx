@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import "./App.scss";
 
-import trashIcon from "./assets/icons/trash.svg";
-import rectangleIcon from "./assets/icons/rectangle.svg";
-import triangleIcon from "./assets/icons/triangle.svg";
+import { trash, triangle, square, fill as fillIcon } from "./components/icons";
 
 import Button from "./components/Button";
 
@@ -11,6 +9,7 @@ import useRenderer from "./services/hooks/useRenderer";
 
 import IconTray, { IconButton } from "./components/IconTray";
 import { point, ShapeTypes } from "./elements";
+import ColorPicker from "./components/ColorPicker";
 
 function App(): JSX.Element {
   const [canvasRef, Renderer] = useRenderer();
@@ -18,6 +17,8 @@ function App(): JSX.Element {
   const [selectedElement, setSelectedElement] = useState<ShapeTypes>(
     ShapeTypes.rectangle
   );
+  const [fill, setFill] = useState<string>("black");
+  const [stroke, setStroke] = useState<string>("black");
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
@@ -26,7 +27,9 @@ function App(): JSX.Element {
     Renderer.setCurrent({
       type: selectedElement,
       start: point(e.clientX, e.clientY),
-      end: point(e.clientX, e.clientY)
+      end: point(e.clientX, e.clientY),
+      fill,
+      stroke
     });
     setDrawing(true);
   };
@@ -35,7 +38,7 @@ function App(): JSX.Element {
   ) => {
     if (drawing) {
       e.preventDefault();
-      Renderer.setCurrent({ end: point(e.clientX, e.clientY) });
+      Renderer.setCurrent({ end: point(e.clientX, e.clientY), fill, stroke });
     }
   };
   const handleMouseUp = (
@@ -49,14 +52,25 @@ function App(): JSX.Element {
   return (
     <div>
       <IconTray className="fixed">
-        <Button className="button" active={false}>
-          <img
-            src={trashIcon}
-            onClick={() => Renderer.clear()}
-            className="icon"
-            alt="trash"
-          />
+        <Button
+          className="button margin-025"
+          onClick={() => Renderer.clear()}
+          active={false}
+        >
+          {trash}
         </Button>
+        <ColorPicker
+          className="margin-025"
+          value={fill}
+          setValue={setFill}
+          icon={fillIcon}
+        />
+        <ColorPicker
+          className="margin-025"
+          value={stroke}
+          setValue={setStroke}
+          icon={square}
+        />
       </IconTray>
       <IconTray className="fixed-h-center">
         <IconButton
@@ -64,14 +78,14 @@ function App(): JSX.Element {
           onClick={() => setSelectedElement(ShapeTypes.rectangle)}
           className="margin-025"
         >
-          <img src={rectangleIcon} alt="rectangle" />
+          {square}
         </IconButton>
         <IconButton
           selected={selectedElement === ShapeTypes.triangle}
           onClick={() => setSelectedElement(ShapeTypes.triangle)}
           className="margin-025"
         >
-          <img src={triangleIcon} alt="triangle" />
+          {triangle}
         </IconButton>
       </IconTray>
       <canvas
