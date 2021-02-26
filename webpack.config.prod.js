@@ -30,7 +30,7 @@ module.exports = {
       }
     }
   },
-  entry: path.join(__dirname, "src", "index.js"),
+  entry: path.join(__dirname, "src", "index.tsx"),
   output: {
     path: path.join(__dirname, "public"),
     filename: "[name].[contentHash].bundle.js"
@@ -39,8 +39,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: path.join(__dirname, "public", "index.html"),
       template: path.join(__dirname, "src", "index.html"),
-      chunksSortMode: "none",
-      favicon: path.join(__dirname, "src", "assets", "favicon.ico")
+      chunksSortMode: "none"
     }),
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: [
@@ -49,6 +48,12 @@ module.exports = {
       ]
     })
   ],
+  resolve: {
+    extensions: [".tsx", ".ts", ".js", ".svg"],
+    alias: {
+      roughjs: path.resolve("./node_modules/roughjs/bundled/rough.esm.js")
+    }
+  },
   module: {
     // If you want to load some other stuff https://webpack.js.org/guides/asset-management
     rules: [
@@ -56,6 +61,22 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: "babel-loader"
+      },
+      {
+        test: /\.tsx?$/,
+        use: "ts-loader",
+        exclude: /node_modules/
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          // Creates `style` nodes from JS strings
+          "style-loader",
+          //Translates CSS into CommonJS
+          "css-loader",
+          // Compiles Sass to CSS
+          "sass-loader"
+        ]
       },
       {
         test: /\.css$/,
@@ -72,7 +93,7 @@ module.exports = {
         ]
       },
       {
-        test: /\.(png|svg|jpg|gif)$/,
+        test: /\.(png|svg|jpg|gif)$/i,
         use: ["file-loader"]
       },
       {
