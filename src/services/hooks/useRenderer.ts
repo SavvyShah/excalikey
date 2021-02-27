@@ -114,7 +114,11 @@ const useRenderer = (): [
           [id, { shape, drawable: current.drawable, id }]
         ])
       );
-      setCurrent({ ...BaseCurrent, ...current });
+      setCurrent({
+        ...BaseCurrent,
+        fill: current.fill,
+        stroke: current.stroke
+      });
       setId(id + 1);
     },
     clear: () => {
