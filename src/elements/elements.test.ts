@@ -35,4 +35,8 @@ describe("Triangle.contains()", () => {
     expect(triangle.contains(point(16, 26))).toBe(true);
     expect(triangle.contains(point(18, 22))).toBe(true);
   });
+  test("is outside triangle", () => {
+    const triangle = new Triangle([point(0, 0), point(3, 0), point(2, 2)]);
+    expect(triangle.contains(point(0.5, 1.5))).toBe(false);
+  });
 });
