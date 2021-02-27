@@ -11,7 +11,7 @@ const IconButtonTray = styled.div`
 `;
 
 export const IconButton = styled.button<{ selected: boolean }>`
-  background-color: ${(props) => (props.selected ? `#8c8c8c` : `#ced4da`)};
+  background-color: ${(props) => (props.selected ? `#ced4da` : `#e9ecef`)};
   width: 2.5rem;
   height: 2.5rem;
   color: black;
@@ -20,10 +20,10 @@ export const IconButton = styled.button<{ selected: boolean }>`
   align-items: center;
   border-radius: 0.25rem;
   &:hover {
-    background-color: #8c8c8c;
+    background-color: #ced4da;
   }
   &:active {
-    background-color: #8c8c8c;
+    background-color: #ced4da;
   }
 `;
 

@@ -8,8 +8,6 @@ body {
   position: fixed;
   left: 50%;
 }
-.button {
-}
 
 @for $i from 1 through 3 {
   .pad-l-#{$i} {
@@ -29,9 +27,14 @@ body {
   }
 }
 
-.margin-025{
-  margin:0.25rem
+.margin-025 {
+  margin: 0.25rem;
 }
+
+.margin-0125 {
+  margin: 0.125rem;
+}
+
 @for $i from 1 through 3 {
   .margin-l-#{$i} {
     margin-left: $i * 0.5rem;

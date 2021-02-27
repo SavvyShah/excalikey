@@ -53,20 +53,20 @@ function App(): JSX.Element {
     <div>
       <IconTray className="fixed">
         <Button
-          className="button margin-025"
+          className="button margin-0125 pad-1"
           onClick={() => Renderer.clear()}
           active={false}
         >
           {trash}
         </Button>
         <ColorPicker
-          className="margin-025"
+          className="margin-0125 pad-1"
           value={fill}
           setValue={setFill}
           icon={fillIcon}
         />
         <ColorPicker
-          className="margin-025"
+          className="margin-0125 pad-1"
           value={stroke}
           setValue={setStroke}
           icon={square}
@@ -76,14 +76,14 @@ function App(): JSX.Element {
         <IconButton
           selected={selectedElement === ShapeTypes.rectangle}
           onClick={() => setSelectedElement(ShapeTypes.rectangle)}
-          className="margin-025"
+          className="margin-0125 pad-1"
         >
           {square}
         </IconButton>
         <IconButton
           selected={selectedElement === ShapeTypes.triangle}
           onClick={() => setSelectedElement(ShapeTypes.triangle)}
-          className="margin-025"
+          className="margin-0125 pad-1"
         >
           {triangle}
         </IconButton>

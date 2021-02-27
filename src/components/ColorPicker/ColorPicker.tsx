@@ -3,8 +3,8 @@ import styled from "styled-components";
 
 const Wrapper = styled.div`
   background-color: #ced4da;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
   color: black;
   display: flex;
   justify-content: center;
@@ -39,21 +39,12 @@ const ColorPicker: React.FunctionComponent<Props> = ({
       style={{ color: value }}
       onClick={() => inputRef.current.click()}
     >
-      <div
-        style={{
-          height: "1.5rem",
-          width: "1.5rem",
-          paddingLeft: "0.2rem",
-          marginLeft: "0.2rem"
-        }}
-      >
-        {icon}
-      </div>
+      {icon}
       <input
         type="color"
         value={value || "#000000"}
         onChange={(e) => setValue(e.target.value)}
-        style={{ visibility: "hidden", height: 0, width: 0 }}
+        style={{ display: "none" }}
         ref={inputRef}
       />
     </Wrapper>
