@@ -14,7 +14,7 @@ import Button from "./components/Button";
 import useRenderer from "./services/hooks/useRenderer";
 
 import IconTray, { IconButton } from "./components/IconTray";
-import { point, ShapeTypes } from "./elements";
+import { Point, point, ShapeTypes } from "./elements";
 import ColorPicker from "./components/ColorPicker";
 
 function App(): JSX.Element {
@@ -25,22 +25,47 @@ function App(): JSX.Element {
   );
   const [fill, setFill] = useState<string>("black");
   const [stroke, setStroke] = useState<string>("black");
+  const [start, setStart] = useState<Point>(point(0, 0));
+  const [end, setEnd] = useState<Point>(point(0, 0));
 
+  const handleFill = (value: string) => {
+    if (selection === "pointer") {
+      Renderer.setSelected({ fill: value });
+    }
+    setFill(value);
+  };
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
-    if (selection !== "pointer") {
+    if (selection === "pointer") {
+      const { fill, stroke } = Renderer.select(e.clientX, e.clientY);
+      setFill(fill);
+      setStroke(stroke);
+    } else if (selection === "rectangle") {
       Renderer.setCurrent({
-        type: selection,
-        start: point(e.clientX, e.clientY),
-        end: point(e.clientX, e.clientY),
+        type: ShapeTypes.rectangle,
+        points: [start, point(end.x, start.y), end, point(start.x, end.y)],
         fill,
         stroke
       });
+      setStart(point(e.clientX, e.clientY));
+      setEnd(point(e.clientX, e.clientY));
       setDrawing(true);
-    } else {
-      Renderer.select(e.clientX, e.clientY);
+    } else if (selection === "triangle") {
+      Renderer.setCurrent({
+        type: ShapeTypes.triangle,
+        points: [
+          start,
+          point(end.x, start.y),
+          point(start.x + (end.x - start.x) / 2, end.y)
+        ],
+        fill,
+        stroke
+      });
+      setStart(point(e.clientX, e.clientY));
+      setEnd(point(e.clientX, e.clientY));
+      setDrawing(true);
     }
   };
   const handleMouseMove = (
@@ -48,7 +73,27 @@ function App(): JSX.Element {
   ) => {
     if (drawing) {
       e.preventDefault();
-      Renderer.setCurrent({ end: point(e.clientX, e.clientY), fill, stroke });
+      if (selection === "rectangle") {
+        Renderer.setCurrent({
+          type: ShapeTypes.rectangle,
+          points: [start, point(end.x, start.y), end, point(start.x, end.y)],
+          fill,
+          stroke
+        });
+        setEnd(point(e.clientX, e.clientY));
+      } else if (selection === "triangle") {
+        Renderer.setCurrent({
+          type: ShapeTypes.triangle,
+          points: [
+            start,
+            point(end.x, start.y),
+            point(start.x + (end.x - start.x) / 2, end.y)
+          ],
+          fill,
+          stroke
+        });
+        setEnd(point(e.clientX, e.clientY));
+      }
     }
   };
   const handleMouseUp = (
@@ -56,6 +101,8 @@ function App(): JSX.Element {
   ) => {
     e.preventDefault();
     setDrawing(false);
+    setStart(point(0, 0));
+    setEnd(point(0, 0));
     Renderer.addCurrent();
   };
 
@@ -72,7 +119,7 @@ function App(): JSX.Element {
         <ColorPicker
           className="margin-0125 pad-1"
           value={fill}
-          setValue={setFill}
+          setValue={handleFill}
           icon={fillIcon}
         />
         <ColorPicker
@@ -119,4 +166,5 @@ function App(): JSX.Element {
     </div>
   );
 }
+
 export default App;

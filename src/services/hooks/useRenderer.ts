@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, MutableRefObject } from "react";
 import rough from "roughjs";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { Drawable } from "roughjs/bin/core";
+import { Point as RoughPoint } from "roughjs/bin/geometry";
 import {
   ExcaliShape,
   Rectangle,
@@ -16,49 +17,77 @@ interface Renderer {
   addCurrent: () => void;
   clear: () => void;
   setCurrent: (update: Update) => void;
-  select: (x: number, y: number) => void;
+  select: (x: number, y: number) => ConfirmedState;
+  setSelected: (update: { fill?: string; stroke?: string }) => void;
 }
 
 const Config = {
   options: null
 };
 
-type Current = {
-  confirmed: false;
-  drawable: Drawable;
-  type: ShapeTypes;
-  start: Point;
-  end: Point;
-  fill: string;
+interface BaseState {
+  confirmed: boolean;
   stroke: string;
-};
+  fill: string;
+  drawable: Drawable;
+}
+
+interface BaseCurrent extends BaseState {
+  confirmed: false;
+}
+
+interface CurrentRect extends BaseCurrent {
+  type: ShapeTypes.rectangle;
+  points: [Point, Point, Point, Point];
+}
+interface CurrentTriangle extends BaseCurrent {
+  type: ShapeTypes.triangle;
+  points: [Point, Point, Point];
+}
+
+type Current = CurrentRect | CurrentTriangle;
 
 const BaseCurrent: Current = {
   confirmed: false,
   drawable: null,
   type: ShapeTypes.rectangle,
-  start: point(0, 0),
-  end: point(0, 0),
+  points: [point(0, 0), point(0, 0), point(0, 0), point(0, 0)],
   fill: "black",
   stroke: "black"
 };
 
-type Update = {
-  type?: ShapeTypes;
-  start?: Point;
-  end?: Point;
+interface BaseUpdate {
   fill?: string;
   stroke?: string;
-};
+}
+interface RectUpdate extends BaseUpdate {
+  type: ShapeTypes.rectangle;
+  points: [Point, Point, Point, Point];
+}
+interface TriangleUpdate extends BaseUpdate {
+  type: ShapeTypes.triangle;
+  points: [Point, Point, Point];
+}
 
-type RenderState =
-  | {
-      id: number;
-      confirmed: true;
-      drawable: Drawable;
-      shape: ExcaliShape;
-    }
-  | Current;
+type Update = RectUpdate | TriangleUpdate;
+
+interface BaseConfirmed extends BaseState {
+  confirmed: true;
+  id: number;
+  shape: ExcaliShape;
+}
+interface ConfirmedRect extends BaseConfirmed {
+  type: ShapeTypes.rectangle;
+  points: [Point, Point, Point, Point];
+}
+interface ConfirmedTriangle extends BaseConfirmed {
+  type: ShapeTypes.triangle;
+  points: [Point, Point, Point];
+}
+
+type ConfirmedState = ConfirmedRect | ConfirmedTriangle;
+
+type RenderState = ConfirmedState | Current;
 
 const clearCanvas = (canvas: HTMLCanvasElement) => {
   canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
@@ -84,6 +113,7 @@ const useRenderer = (): [
   const canvasRef = useRef<HTMLCanvasElement>();
   const roughCanvasRef = useRef<RoughCanvas>();
   const [current, setCurrent] = useState<Current>(BaseCurrent);
+  const [selected, setSelected] = useState<ConfirmedState>();
   const [id, setId] = useState<number>(0);
   const [canvasState, setCanvasState] = useState<Map<number, RenderState>>(
     new Map()
@@ -95,36 +125,50 @@ const useRenderer = (): [
 
   const Renderer: Renderer = {
     select: (x: number, y: number) => {
+      let selected: ConfirmedState;
       for (const state of canvasState.values()) {
         if (state.confirmed) {
           if (state.shape.contains(point(x, y))) {
-            return state;
+            selected = state;
+            break;
           }
         }
       }
+      setSelected(selected);
+      return selected;
+    },
+    setSelected: (update: { fill?: string; stroke?: string }) => {
+      const newCanvasState = new Map(canvasState);
+      newCanvasState.set(selected.id, { ...selected, ...update });
+      let drawable: Drawable;
+      const { points, type, fill, stroke } = { ...selected, ...update };
+      const pointsArr: RoughPoint[] = points.map((point) => [point.x, point.y]);
+      if (type === ShapeTypes.rectangle) {
+        drawable = roughCanvasRef.current.generator.polygon(pointsArr, {
+          fill,
+          stroke
+        });
+      }
+      if (type === ShapeTypes.triangle) {
+        drawable = roughCanvasRef.current.generator.polygon(pointsArr, {
+          fill,
+          stroke
+        });
+      }
+      setSelected({ ...selected, ...update, drawable });
+      setCanvasState(newCanvasState);
     },
     addCurrent: () => {
       let shape: ExcaliShape;
       if (current.type === ShapeTypes.rectangle) {
-        const { start, end } = current;
-        shape = new Rectangle([
-          start,
-          point(end.x, start.y),
-          end,
-          point(start.x, end.y)
-        ]);
+        shape = new Rectangle(current.points);
       } else if (current.type === ShapeTypes.triangle) {
-        const { start, end } = current;
-        shape = new Triangle([
-          start,
-          point(end.x, start.y),
-          point(start.x + (end.x - start.x) / 2, end.y)
-        ]);
+        shape = new Triangle(current.points);
       }
       setCanvasState(
         new Map([
           ...canvasState,
-          [id, { shape, drawable: current.drawable, id, confirmed: true }]
+          [id, { shape, ...current, id, confirmed: true }]
         ])
       );
       setCurrent({
@@ -140,25 +184,19 @@ const useRenderer = (): [
     },
     setCurrent: (update: Update) => {
       let drawable: Drawable;
-      const { start, end, type, fill, stroke } = { ...current, ...update };
+      const { points, type, fill, stroke } = { ...current, ...update };
+      const pointsArr: RoughPoint[] = points.map((point) => [point.x, point.y]);
       if (type === ShapeTypes.rectangle) {
-        drawable = roughCanvasRef.current.generator.rectangle(
-          start.x,
-          start.y,
-          end.x - start.x,
-          end.y - start.y,
-          { fill, stroke }
-        );
+        drawable = roughCanvasRef.current.generator.polygon(pointsArr, {
+          fill,
+          stroke
+        });
       }
       if (type === ShapeTypes.triangle) {
-        drawable = roughCanvasRef.current.generator.polygon(
-          [
-            [start.x, start.y],
-            [end.x, start.y],
-            [start.x + (end.x - start.x) / 2, end.y]
-          ],
-          { fill, stroke }
-        );
+        drawable = roughCanvasRef.current.generator.polygon(pointsArr, {
+          fill,
+          stroke
+        });
       }
       setCurrent({ ...current, ...update, drawable });
     }
