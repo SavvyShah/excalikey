@@ -31,5 +31,8 @@ describe("Triangle.contains()", () => {
       point(15, 30)
     ]);
     expect(triangle.contains(point(15, 25))).toBe(true);
+    expect(triangle.contains(point(16, 25))).toBe(true);
+    expect(triangle.contains(point(16, 26))).toBe(true);
+    expect(triangle.contains(point(18, 22))).toBe(true);
   });
 });
