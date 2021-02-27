@@ -70,31 +70,35 @@ abstract class Polygon implements ExcaliShape {
     };
     this._boundingRect = new BoundingRect(min, max);
   }
-  protected _getCrossingNumber(P: Point): number {
-    let crossingNumber = 0;
-    for (let i = 0; i < this.points.length - 1; i++) {
+  //Check if P2 is left of line joining P0 to P1
+  private __isLeft(P0: Point, P1: Point, P2: Point): number {
+    const value = (P1.x - P0.x) * (P2.y - P0.y) - (P2.x - P0.x) * (P1.y - P0.y);
+    return value;
+  }
+  protected _getWindingNumber(P: Point): number {
+    let windingNumber = 0;
+    for (let i = 0; i < this.points.length; i++) {
+      const nextPointIndex = i + 1 === this.points.length ? 0 : i + 1;
       const current = this.points[i];
-      const next = this.points[i + 1];
-      if (P.x <= current.x && P.x <= next.x) {
-        //downward edge
-        if (next.y > current.y) {
-          if (P.y >= current.y && P.y < next.y) {
-            crossingNumber++;
-          }
-        }
-        //upward edge
-        else if (next.y < current.y) {
-          if (P.y <= next.y && P.y > current.y) {
-            crossingNumber++;
-          }
-        }
-        //horizontal edge
-        else {
-          continue;
+      const next = this.points[nextPointIndex];
+      //downward edge
+      if (next.y > current.y) {
+        if (this.__isLeft(current, next, P) > 0) {
+          windingNumber++;
         }
       }
+      //upward edge
+      else if (next.y < current.y) {
+        if (this.__isLeft(current, next, P) < 0) {
+          windingNumber--;
+        }
+      }
+      //horizontal edge
+      else {
+        continue;
+      }
     }
-    return crossingNumber;
+    return windingNumber;
   }
   //Checks whether point P is inside of Polygon's bounding box
   protected _isInBoundingBox(P: Point): boolean {
@@ -120,8 +124,8 @@ export class Triangle extends Polygon {
   }
   contains(P: Point): boolean {
     if (this._isInBoundingBox(P)) {
-      const crossingNumber = this._getCrossingNumber(P);
-      return crossingNumber % 2 !== 0;
+      const windingNum = this._getWindingNumber(P);
+      return windingNum !== 0;
     } else {
       return false;
     }
