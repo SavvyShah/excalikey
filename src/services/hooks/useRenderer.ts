@@ -3,12 +3,14 @@ import { useEffect, useState, useRef, MutableRefObject } from "react";
 import rough from "roughjs";
 import { RoughCanvas } from "roughjs/bin/canvas";
 import { Drawable } from "roughjs/bin/core";
-import { ExcaliShape, Rectangle, Triangle, point, Point } from "../../elements";
-
-export enum ShapeTypes {
-  rectangle = "rectangle",
-  triangle = "triangle"
-}
+import {
+  ExcaliShape,
+  Rectangle,
+  Triangle,
+  point,
+  Point,
+  ShapeTypes
+} from "../../elements";
 
 interface Renderer {
   addCurrent: () => void;
@@ -28,6 +30,7 @@ type Current = {
   fill: string;
   stroke: string;
 };
+
 const BaseCurrent: Current = {
   drawable: null,
   type: ShapeTypes.rectangle,
@@ -36,6 +39,7 @@ const BaseCurrent: Current = {
   fill: "black",
   stroke: "black"
 };
+
 type Update = {
   type?: ShapeTypes;
   start?: Point;
@@ -46,6 +50,7 @@ type Update = {
 
 type RenderState =
   | {
+      id: number;
       drawable: Drawable;
       shape: ExcaliShape;
     }
@@ -75,7 +80,10 @@ const useRenderer = (): [
   const canvasRef = useRef<HTMLCanvasElement>();
   const roughCanvasRef = useRef<RoughCanvas>();
   const [current, setCurrent] = useState<Current>(BaseCurrent);
-  const [canvasState, setCanvasState] = useState<RenderState[]>([]);
+  const [id, setId] = useState<number>(0);
+  const [canvasState, setCanvasState] = useState<Map<number, RenderState>>(
+    new Map()
+  );
 
   useEffect(() => {
     roughCanvasRef.current = rough.canvas(canvasRef.current, Config);
@@ -100,11 +108,17 @@ const useRenderer = (): [
           point(start.x + (end.x - start.x) / 2, end.y)
         ]);
       }
-      setCanvasState([...canvasState, { shape, drawable: current.drawable }]);
+      setCanvasState(
+        new Map([
+          ...canvasState,
+          [id, { shape, drawable: current.drawable, id }]
+        ])
+      );
       setCurrent({ ...BaseCurrent, ...current });
+      setId(id + 1);
     },
     clear: () => {
-      setCanvasState([]);
+      setCanvasState(new Map());
       setCurrent(BaseCurrent);
     },
     setCurrent: (update: Update) => {
@@ -136,7 +150,7 @@ const useRenderer = (): [
   useEffect(() => {
     if (roughCanvasRef && roughCanvasRef.current) {
       refreshCanvas(canvasRef.current, roughCanvasRef.current, [
-        ...canvasState,
+        ...canvasState.values(),
         current
       ]);
     }
