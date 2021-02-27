@@ -16,6 +16,7 @@ interface Renderer {
   addCurrent: () => void;
   clear: () => void;
   setCurrent: (update: Update) => void;
+  select: (x: number, y: number) => void;
 }
 
 const Config = {
@@ -23,6 +24,7 @@ const Config = {
 };
 
 type Current = {
+  confirmed: false;
   drawable: Drawable;
   type: ShapeTypes;
   start: Point;
@@ -32,6 +34,7 @@ type Current = {
 };
 
 const BaseCurrent: Current = {
+  confirmed: false,
   drawable: null,
   type: ShapeTypes.rectangle,
   start: point(0, 0),
@@ -51,6 +54,7 @@ type Update = {
 type RenderState =
   | {
       id: number;
+      confirmed: true;
       drawable: Drawable;
       shape: ExcaliShape;
     }
@@ -90,6 +94,15 @@ const useRenderer = (): [
   }, []);
 
   const Renderer: Renderer = {
+    select: (x: number, y: number) => {
+      for (const state of canvasState.values()) {
+        if (state.confirmed) {
+          if (state.shape.contains(point(x, y))) {
+            return state;
+          }
+        }
+      }
+    },
     addCurrent: () => {
       let shape: ExcaliShape;
       if (current.type === ShapeTypes.rectangle) {
@@ -111,7 +124,7 @@ const useRenderer = (): [
       setCanvasState(
         new Map([
           ...canvasState,
-          [id, { shape, drawable: current.drawable, id }]
+          [id, { shape, drawable: current.drawable, id, confirmed: true }]
         ])
       );
       setCurrent({

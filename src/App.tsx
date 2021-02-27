@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import "./App.scss";
 
-import { trash, triangle, square, fill as fillIcon } from "./components/icons";
+import {
+  trash,
+  triangle,
+  square,
+  fill as fillIcon,
+  pointer
+} from "./components/icons";
 
 import Button from "./components/Button";
 
@@ -14,7 +20,7 @@ import ColorPicker from "./components/ColorPicker";
 function App(): JSX.Element {
   const [canvasRef, Renderer] = useRenderer();
   const [drawing, setDrawing] = useState<boolean>(false);
-  const [selectedElement, setSelectedElement] = useState<ShapeTypes>(
+  const [selection, setSelection] = useState<ShapeTypes | "pointer">(
     ShapeTypes.rectangle
   );
   const [fill, setFill] = useState<string>("black");
@@ -24,14 +30,18 @@ function App(): JSX.Element {
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
-    Renderer.setCurrent({
-      type: selectedElement,
-      start: point(e.clientX, e.clientY),
-      end: point(e.clientX, e.clientY),
-      fill,
-      stroke
-    });
-    setDrawing(true);
+    if (selection !== "pointer") {
+      Renderer.setCurrent({
+        type: selection,
+        start: point(e.clientX, e.clientY),
+        end: point(e.clientX, e.clientY),
+        fill,
+        stroke
+      });
+      setDrawing(true);
+    } else {
+      Renderer.select(e.clientX, e.clientY);
+    }
   };
   const handleMouseMove = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
@@ -74,15 +84,23 @@ function App(): JSX.Element {
       </IconTray>
       <IconTray className="fixed-h-center">
         <IconButton
-          selected={selectedElement === ShapeTypes.rectangle}
-          onClick={() => setSelectedElement(ShapeTypes.rectangle)}
+          selected={selection === "pointer"}
+          onClick={() => setSelection("pointer")}
+          className="margin-0125"
+          style={{ padding: "0.7rem" }}
+        >
+          {pointer}
+        </IconButton>
+        <IconButton
+          selected={selection === ShapeTypes.rectangle}
+          onClick={() => setSelection(ShapeTypes.rectangle)}
           className="margin-0125 pad-1"
         >
           {square}
         </IconButton>
         <IconButton
-          selected={selectedElement === ShapeTypes.triangle}
-          onClick={() => setSelectedElement(ShapeTypes.triangle)}
+          selected={selection === ShapeTypes.triangle}
+          onClick={() => setSelection(ShapeTypes.triangle)}
           className="margin-0125 pad-1"
         >
           {triangle}
