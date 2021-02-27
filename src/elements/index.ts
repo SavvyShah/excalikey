@@ -29,54 +29,18 @@ class BoundingRect {
   }
 }
 
-export interface Shape {
+export interface ExcaliShape {
   type: ShapeTypes;
-  fill?: {
-    style: fillStyles;
-    color: string;
-    weight: number;
-  };
-  stroke?: {
-    color: string | null;
-    width: number;
-  };
-}
-
-export class Fill {
-  style: fillStyles;
-  color: string;
-  weight: number;
-  constructor(style = fillStyles.solid, color = "blue", weight = 1) {
-    this.style = style;
-    this.color = color;
-    this.weight = weight;
-  }
-}
-export class Stroke {
-  color: string | null;
-  width: number;
-  constructor(color = "blue", width = 2) {
-    this.color = color;
-    this.width = width;
-  }
-}
-
-export interface ExcaliShape extends Shape {
   contains(P: Point): boolean;
 }
 
 abstract class Polygon implements ExcaliShape {
   type: ShapeTypes;
-  fill = new Fill();
-  stroke = new Stroke();
   private _points: Array<Point>;
   private _boundingRect: BoundingRect;
 
-  constructor(S: Shape, points: Array<Point>) {
-    const { type, fill, stroke } = S;
+  constructor(type: ShapeTypes, points: Array<Point>) {
     this.type = type;
-    if (fill) this.fill = fill;
-    if (stroke) this.stroke = stroke;
     this.points = points;
   }
   get points(): Array<Point> {
@@ -142,8 +106,8 @@ abstract class Polygon implements ExcaliShape {
 export class Rectangle extends Polygon {
   readonly height: number;
   readonly width: number;
-  constructor(points: [Point, Point, Point, Point], config?: Shape) {
-    super({ ...config, type: ShapeTypes.rectangle }, points);
+  constructor(points: [Point, Point, Point, Point]) {
+    super(ShapeTypes.rectangle, points);
   }
   contains(P: Point): boolean {
     //Check if element is in bounding box
@@ -151,8 +115,8 @@ export class Rectangle extends Polygon {
   }
 }
 export class Triangle extends Polygon {
-  constructor(points: [Point, Point, Point], config?: Shape) {
-    super({ ...config, type: ShapeTypes.rectangle }, points);
+  constructor(points: [Point, Point, Point]) {
+    super(ShapeTypes.triangle, points);
   }
   contains(P: Point): boolean {
     if (this._isInBoundingBox(P)) {
