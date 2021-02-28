@@ -32,6 +32,7 @@ class BoundingRect {
 export interface ExcaliShape {
   type: ShapeTypes;
   contains(P: Point): boolean;
+  bounds: BoundingRect;
 }
 
 abstract class Polygon implements ExcaliShape {
@@ -42,6 +43,9 @@ abstract class Polygon implements ExcaliShape {
   constructor(type: ShapeTypes, points: Array<Point>) {
     this.type = type;
     this.points = points;
+  }
+  get bounds(): BoundingRect {
+    return this._boundingRect;
   }
   get points(): Array<Point> {
     return this._points;

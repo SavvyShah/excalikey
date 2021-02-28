@@ -24,6 +24,7 @@ interface Renderer {
 const Config = {
   options: null
 };
+const SELECTED_BORDER_OFFSET = 5;
 
 interface BaseState {
   confirmed: boolean;
@@ -75,6 +76,7 @@ interface BaseConfirmed extends BaseState {
   confirmed: true;
   id: number;
   shape: ExcaliShape;
+  selected: boolean;
 }
 interface ConfirmedRect extends BaseConfirmed {
   type: ShapeTypes.rectangle;
@@ -102,6 +104,15 @@ const refreshCanvas = (
   state
     .filter((shape) => shape && shape.drawable)
     .forEach((shape) => {
+      if (shape.confirmed && shape.selected) {
+        const { min, max } = shape.shape.bounds;
+        roughCanvas.rectangle(
+          min.x - SELECTED_BORDER_OFFSET,
+          min.y - SELECTED_BORDER_OFFSET,
+          max.x - min.x + 2 * SELECTED_BORDER_OFFSET,
+          max.y - min.y + 2 * SELECTED_BORDER_OFFSET
+        );
+      }
       roughCanvas.draw(shape.drawable);
     });
 };
@@ -125,36 +136,34 @@ const useRenderer = (): [
 
   const Renderer: Renderer = {
     select: (x: number, y: number) => {
-      let selected: ConfirmedState;
+      let newSelected: ConfirmedState;
       for (const state of canvasState.values()) {
         if (state.confirmed) {
           if (state.shape.contains(point(x, y))) {
-            selected = state;
+            newSelected = state;
             break;
           }
         }
       }
-      setSelected(selected);
-      return selected;
+      const newCanvasState = new Map(canvasState);
+      //unselect old selected element
+      if (selected)
+        newCanvasState.set(selected.id, { ...selected, selected: false });
+      //select newly selected element
+      newCanvasState.set(newSelected.id, { ...newSelected, selected: true });
+      setCanvasState(newCanvasState);
+      setSelected({ ...newSelected, selected: true });
+      return newSelected;
     },
     setSelected: (update: { fill?: string; stroke?: string }) => {
       const newCanvasState = new Map(canvasState);
       newCanvasState.set(selected.id, { ...selected, ...update });
-      let drawable: Drawable;
-      const { points, type, fill, stroke } = { ...selected, ...update };
+      const { points, fill, stroke } = { ...selected, ...update };
       const pointsArr: RoughPoint[] = points.map((point) => [point.x, point.y]);
-      if (type === ShapeTypes.rectangle) {
-        drawable = roughCanvasRef.current.generator.polygon(pointsArr, {
-          fill,
-          stroke
-        });
-      }
-      if (type === ShapeTypes.triangle) {
-        drawable = roughCanvasRef.current.generator.polygon(pointsArr, {
-          fill,
-          stroke
-        });
-      }
+      const drawable = roughCanvasRef.current.generator.polygon(pointsArr, {
+        fill,
+        stroke
+      });
       setSelected({ ...selected, ...update, drawable });
       setCanvasState(newCanvasState);
     },
@@ -168,7 +177,7 @@ const useRenderer = (): [
       setCanvasState(
         new Map([
           ...canvasState,
-          [id, { shape, ...current, id, confirmed: true }]
+          [id, { shape, ...current, id, confirmed: true, selected: false }]
         ])
       );
       setCurrent({
@@ -198,6 +207,12 @@ const useRenderer = (): [
           stroke
         });
       }
+      const newCanvasState = new Map(canvasState);
+      //when drawing unselect current selection
+      if (selected) {
+        newCanvasState.set(selected.id, { ...selected, selected: false });
+      }
+      setCanvasState(newCanvasState);
       setCurrent({ ...current, ...update, drawable });
     }
   };
@@ -209,7 +224,7 @@ const useRenderer = (): [
         current
       ]);
     }
-  }, [canvasState, current]);
+  }, [canvasState, current, selected]);
 
   return [canvasRef, Renderer];
 };

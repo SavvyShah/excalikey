@@ -103,7 +103,9 @@ function App(): JSX.Element {
     setDrawing(false);
     setStart(point(0, 0));
     setEnd(point(0, 0));
-    Renderer.addCurrent();
+    if (drawing) {
+      Renderer.addCurrent();
+    }
   };
 
   return (
