@@ -34,14 +34,23 @@ function App(): JSX.Element {
     }
     setFill(value);
   };
+  const handleStroke = (value: string) => {
+    if (selection === "pointer") {
+      Renderer.setSelected({ stroke: value });
+    }
+    setStroke(value);
+  };
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
     if (selection === "pointer") {
-      const { fill, stroke } = Renderer.select(e.clientX, e.clientY);
-      setFill(fill);
-      setStroke(stroke);
+      const selectedShape = Renderer.select(e.clientX, e.clientY);
+      if (selectedShape) {
+        const { fill, stroke } = selectedShape;
+        setFill(fill);
+        setStroke(stroke);
+      }
     } else if (selection === "rectangle") {
       Renderer.setCurrent({
         type: ShapeTypes.rectangle,
@@ -127,7 +136,7 @@ function App(): JSX.Element {
         <ColorPicker
           className="margin-0125 pad-1"
           value={stroke}
-          setValue={setStroke}
+          setValue={handleStroke}
           icon={square}
         />
       </IconTray>

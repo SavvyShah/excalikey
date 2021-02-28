@@ -25,6 +25,7 @@ const Config = {
   options: null
 };
 const SELECTED_BORDER_OFFSET = 5;
+const BORDER_DASH_SIZE = 5;
 
 interface BaseState {
   confirmed: boolean;
@@ -110,7 +111,8 @@ const refreshCanvas = (
           min.x - SELECTED_BORDER_OFFSET,
           min.y - SELECTED_BORDER_OFFSET,
           max.x - min.x + 2 * SELECTED_BORDER_OFFSET,
-          max.y - min.y + 2 * SELECTED_BORDER_OFFSET
+          max.y - min.y + 2 * SELECTED_BORDER_OFFSET,
+          { strokeLineDash: [BORDER_DASH_SIZE, BORDER_DASH_SIZE] }
         );
       }
       roughCanvas.draw(shape.drawable);
@@ -137,7 +139,7 @@ const useRenderer = (): [
   const Renderer: Renderer = {
     select: (x: number, y: number) => {
       let newSelected: ConfirmedState;
-      for (const state of canvasState.values()) {
+      for (const state of Array.from(canvasState.values()).reverse()) {
         if (state.confirmed) {
           if (state.shape.contains(point(x, y))) {
             newSelected = state;
@@ -147,12 +149,14 @@ const useRenderer = (): [
       }
       const newCanvasState = new Map(canvasState);
       //unselect old selected element
-      if (selected)
+      if (selected && newCanvasState.get(selected.id))
         newCanvasState.set(selected.id, { ...selected, selected: false });
       //select newly selected element
-      newCanvasState.set(newSelected.id, { ...newSelected, selected: true });
+      if (newSelected && newCanvasState.get(newSelected.id)) {
+        newCanvasState.set(newSelected.id, { ...newSelected, selected: true });
+        setSelected({ ...newSelected, selected: true });
+      }
       setCanvasState(newCanvasState);
-      setSelected({ ...newSelected, selected: true });
       return newSelected;
     },
     setSelected: (update: { fill?: string; stroke?: string }) => {
@@ -209,7 +213,7 @@ const useRenderer = (): [
       }
       const newCanvasState = new Map(canvasState);
       //when drawing unselect current selection
-      if (selected) {
+      if (selected && newCanvasState.get(selected.id)) {
         newCanvasState.set(selected.id, { ...selected, selected: false });
       }
       setCanvasState(newCanvasState);
