@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import "./App.scss";
 
 import {
   trash,
   triangle,
   square,
   fill as fillIcon,
-  pointer
+  pointer,
 } from "./components/icons";
 
 import Button from "./components/Button";
@@ -56,7 +55,7 @@ function App(): JSX.Element {
         type: ShapeTypes.rectangle,
         points: [start, point(end.x, start.y), end, point(start.x, end.y)],
         fill,
-        stroke
+        stroke,
       });
       setStart(point(e.clientX, e.clientY));
       setEnd(point(e.clientX, e.clientY));
@@ -67,10 +66,10 @@ function App(): JSX.Element {
         points: [
           start,
           point(end.x, start.y),
-          point(start.x + (end.x - start.x) / 2, end.y)
+          point(start.x + (end.x - start.x) / 2, end.y),
         ],
         fill,
-        stroke
+        stroke,
       });
       setStart(point(e.clientX, e.clientY));
       setEnd(point(e.clientX, e.clientY));
@@ -87,7 +86,7 @@ function App(): JSX.Element {
           type: ShapeTypes.rectangle,
           points: [start, point(end.x, start.y), end, point(start.x, end.y)],
           fill,
-          stroke
+          stroke,
         });
         setEnd(point(e.clientX, e.clientY));
       } else if (selection === "triangle") {
@@ -96,10 +95,10 @@ function App(): JSX.Element {
           points: [
             start,
             point(end.x, start.y),
-            point(start.x + (end.x - start.x) / 2, end.y)
+            point(start.x + (end.x - start.x) / 2, end.y),
           ],
           fill,
-          stroke
+          stroke,
         });
         setEnd(point(e.clientX, e.clientY));
       }
@@ -119,47 +118,42 @@ function App(): JSX.Element {
 
   return (
     <div>
-      <IconTray className="fixed">
-        <Button
-          className="button margin-0125 pad-1"
-          onClick={() => Renderer.clear()}
-          active={false}
-        >
+      <IconTray style={{ position: "fixed" }}>
+        <Button onClick={() => Renderer.clear()} active={false}>
           {trash}
         </Button>
         <ColorPicker
-          className="margin-0125 pad-1"
+          style={{ padding: "7px", margin: "0.125rem" }}
           value={fill}
           setValue={handleFill}
           icon={fillIcon}
         />
         <ColorPicker
-          className="margin-0125 pad-1"
+          style={{ padding: "7px", margin: "0.125rem" }}
           value={stroke}
           setValue={handleStroke}
           icon={square}
         />
       </IconTray>
-      <IconTray className="fixed-h-center">
+      <IconTray style={{ position: "fixed", marginLeft: "45vw" }}>
         <IconButton
           selected={selection === "pointer"}
           onClick={() => setSelection("pointer")}
-          className="margin-0125"
-          style={{ padding: "0.7rem" }}
+          style={{ padding: "7px", margin: "0.125rem" }}
         >
           {pointer}
         </IconButton>
         <IconButton
           selected={selection === ShapeTypes.rectangle}
           onClick={() => setSelection(ShapeTypes.rectangle)}
-          className="margin-0125 pad-1"
+          style={{ padding: "7px", margin: "0.125rem" }}
         >
           {square}
         </IconButton>
         <IconButton
           selected={selection === ShapeTypes.triangle}
           onClick={() => setSelection(ShapeTypes.triangle)}
-          className="margin-0125 pad-1"
+          style={{ padding: "7px", margin: "0.125rem" }}
         >
           {triangle}
         </IconButton>
