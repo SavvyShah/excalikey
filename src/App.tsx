@@ -10,166 +10,147 @@ import {
 
 import Button from "./components/Button";
 
-import useRenderer from "./services/hooks/useRenderer";
-
 import IconTray, { IconButton } from "./components/IconTray";
-import { Point, point, ShapeTypes } from "./elements";
 import ColorPicker from "./components/ColorPicker";
+import { useAppDispatch, useAppSelector } from "./state/hook";
+import { draw, save } from "./state/reducer";
+import RoughCanvas from "./RoughCanvas";
+
+type ShapeTypes = "rectangle" | "circle" | "triangle";
+type Point = [number, number];
 
 function App(): JSX.Element {
-  const [canvasRef, Renderer] = useRenderer();
-  const [drawing, setDrawing] = useState<boolean>(false);
-  const [selection, setSelection] = useState<ShapeTypes | "pointer">(
-    ShapeTypes.rectangle
-  );
+  const { drawing, selected, shapes } = useAppSelector((state) => state);
+  console.log({ drawing, shapes });
+  const dispatch = useAppDispatch();
+  const [actionType, setActionType] = useState<ShapeTypes | "pointer" | null>();
+  const [counter, setCounter] = useState(0);
   const [fill, setFill] = useState<string>("black");
   const [stroke, setStroke] = useState<string>("black");
-  const [start, setStart] = useState<Point>(point(0, 0));
-  const [end, setEnd] = useState<Point>(point(0, 0));
+  const [start, setStart] = useState<Point>([0, 0]);
+  const [end, setEnd] = useState<Point>([0, 0]);
 
-  const handleFill = (value: string) => {
-    if (selection === "pointer") {
-      Renderer.setSelected({ fill: value });
-    }
-    setFill(value);
-  };
-  const handleStroke = (value: string) => {
-    if (selection === "pointer") {
-      Renderer.setSelected({ stroke: value });
-    }
-    setStroke(value);
-  };
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
-    if (selection === "pointer") {
-      const selectedShape = Renderer.select(e.clientX, e.clientY);
-      if (selectedShape) {
-        const { fill, stroke } = selectedShape;
-        setFill(fill);
-        setStroke(stroke);
-      }
-    } else if (selection === "rectangle") {
-      Renderer.setCurrent({
-        type: ShapeTypes.rectangle,
-        points: [start, point(end.x, start.y), end, point(start.x, end.y)],
-        fill,
-        stroke,
-      });
-      setStart(point(e.clientX, e.clientY));
-      setEnd(point(e.clientX, e.clientY));
-      setDrawing(true);
-    } else if (selection === "triangle") {
-      Renderer.setCurrent({
-        type: ShapeTypes.triangle,
-        points: [
-          start,
-          point(end.x, start.y),
-          point(start.x + (end.x - start.x) / 2, end.y),
-        ],
-        fill,
-        stroke,
-      });
-      setStart(point(e.clientX, e.clientY));
-      setEnd(point(e.clientX, e.clientY));
-      setDrawing(true);
+    if (actionType === "pointer") {
+      console.log(
+        "Select the shape",
+        "foreach shape call shapeContains(shape, point)"
+      );
+    } else if (actionType === "rectangle") {
+      console.log("Set the start and end points");
+      dispatch(
+        draw({
+          type: "rectangle",
+          id: `shape-${counter}`,
+          points: generatePoints("rectangle", start, end),
+        })
+      );
+    } else if (actionType === "triangle") {
+      dispatch(
+        draw({
+          type: "triangle",
+          id: `shape-${counter}`,
+          points: generatePoints("triangle", start, end),
+        })
+      );
     }
+    setStart([e.clientX, e.clientY]);
+    setEnd([e.clientX, e.clientY]);
   };
   const handleMouseMove = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     if (drawing) {
       e.preventDefault();
-      if (selection === "rectangle") {
-        Renderer.setCurrent({
-          type: ShapeTypes.rectangle,
-          points: [start, point(end.x, start.y), end, point(start.x, end.y)],
-          fill,
-          stroke,
-        });
-        setEnd(point(e.clientX, e.clientY));
-      } else if (selection === "triangle") {
-        Renderer.setCurrent({
-          type: ShapeTypes.triangle,
-          points: [
-            start,
-            point(end.x, start.y),
-            point(start.x + (end.x - start.x) / 2, end.y),
-          ],
-          fill,
-          stroke,
-        });
-        setEnd(point(e.clientX, e.clientY));
+      if (actionType === "rectangle") {
+        dispatch(
+          draw({ ...drawing, points: generatePoints("rectangle", start, end) })
+        );
+      } else if (actionType === "triangle") {
+        dispatch(
+          draw({ ...drawing, points: generatePoints("triangle", start, end) })
+        );
       }
+      setEnd([e.clientX, e.clientY]);
     }
   };
   const handleMouseUp = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
-    setDrawing(false);
-    setStart(point(0, 0));
-    setEnd(point(0, 0));
     if (drawing) {
-      Renderer.addCurrent();
+      dispatch(save());
     }
+    setStart([0, 0]);
+    setEnd([0, 0]);
+    setCounter(counter + 1);
   };
 
   return (
     <div>
       <IconTray style={{ position: "fixed" }}>
-        <Button onClick={() => Renderer.clear()} active={false}>
+        <Button onClick={() => console.log("clear everything")} active={false}>
           {trash}
         </Button>
         <ColorPicker
           style={{ padding: "7px", margin: "0.125rem" }}
           value={fill}
-          setValue={handleFill}
+          onChange={(val) => setFill(val)}
           icon={fillIcon}
         />
         <ColorPicker
           style={{ padding: "7px", margin: "0.125rem" }}
           value={stroke}
-          setValue={handleStroke}
+          onChange={(val) => setStroke(val)}
           icon={square}
         />
       </IconTray>
       <IconTray style={{ position: "fixed", marginLeft: "45vw" }}>
         <IconButton
-          selected={selection === "pointer"}
-          onClick={() => setSelection("pointer")}
+          selected={actionType === "pointer"}
+          onClick={() => setActionType("pointer")}
           style={{ padding: "7px", margin: "0.125rem" }}
         >
           {pointer}
         </IconButton>
         <IconButton
-          selected={selection === ShapeTypes.rectangle}
-          onClick={() => setSelection(ShapeTypes.rectangle)}
+          selected={actionType === "rectangle"}
+          onClick={() => setActionType("rectangle")}
           style={{ padding: "7px", margin: "0.125rem" }}
         >
           {square}
         </IconButton>
         <IconButton
-          selected={selection === ShapeTypes.triangle}
-          onClick={() => setSelection(ShapeTypes.triangle)}
+          selected={actionType === "triangle"}
+          onClick={() => setActionType("triangle")}
           style={{ padding: "7px", margin: "0.125rem" }}
         >
           {triangle}
         </IconButton>
       </IconTray>
-      <canvas
-        width={window.innerWidth}
-        height={window.innerHeight}
-        ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
+      <RoughCanvas
+        shapes={Object.keys(shapes).map((id) => shapes[id])}
         onMouseUp={handleMouseUp}
-      >
-        Canvas not supported
-      </canvas>
+        onMouseMove={handleMouseMove}
+        onMouseDown={handleMouseDown}
+      />
     </div>
   );
+}
+
+function generatePoints(type: ShapeTypes, start: Point, end: Point): Point[] {
+  if (type === "rectangle") {
+    return [start, [end[0], start[1]], end, [start[0], end[1]]];
+  } else if (type === "triangle") {
+    return [start, [end[0], start[1]], [end[0] / 2, end[1]]];
+  } else if (type === "circle") {
+    return [start];
+  } else {
+    return [];
+  }
 }
 
 export default App;

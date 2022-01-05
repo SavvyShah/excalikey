@@ -20,14 +20,14 @@ const Wrapper = styled.div`
 
 interface Props {
   value: string;
-  setValue: React.Dispatch<React.SetStateAction<string>>;
+  onChange: React.Dispatch<React.SetStateAction<string>>;
   icon: JSX.Element;
-  className: string;
+  style: any;
 }
 
 const ColorPicker: React.FunctionComponent<Props> = ({
   value,
-  setValue,
+  onChange,
   icon,
   style,
 }: Props) => {
@@ -42,7 +42,7 @@ const ColorPicker: React.FunctionComponent<Props> = ({
       <input
         type="color"
         value={value || "#000000"}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         style={{ display: "none" }}
         ref={inputRef}
       />
