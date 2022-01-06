@@ -23,7 +23,7 @@ export const slice = createSlice({
     draw: (state, action: PayloadAction<Shape>) => {
       state.drawing = action.payload;
     },
-    save: (state) => {
+    saveDrawing: (state) => {
       const { drawing } = state;
       if (drawing) {
         state.shapes[drawing.id] = drawing;
@@ -39,6 +39,6 @@ export const slice = createSlice({
   },
 });
 
-export const { draw, select, save } = slice.actions;
+export const { draw, select, saveDrawing } = slice.actions;
 
 export default slice.reducer;

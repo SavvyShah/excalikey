@@ -2,6 +2,8 @@ import React, { MouseEventHandler, useEffect, useRef } from "react";
 import { Drawable } from "roughjs/bin/core";
 import rough from "roughjs";
 
+const MIN_LEN = 50;
+
 type Point = [number, number];
 
 type Shape = {
@@ -30,28 +32,33 @@ function generateDrawable(canvas: HTMLCanvasElement, shape: Shape): Drawable {
   const start = shape.points[0];
   switch (shape.type) {
     case "rectangle":
-      return generator.rectangle(start[0], start[1], 10, 10);
+      return generator.rectangle(start[0], start[1], MIN_LEN, MIN_LEN);
     case "triangle":
       return generator.polygon([
         start,
-        [start[0] + 10, start[1]],
-        [start[0] + 5, start[1] + 10],
+        [start[0] + MIN_LEN, start[1]],
+        [start[0] + 5, start[1] + MIN_LEN],
       ]);
     default:
       return generator.polygon([]);
   }
 }
 function getScale(shape: Shape): [number, number] {
-  const start = shape.points[0];
-  const end = shape.points[shape.points.length - 1];
+  let hScale = 1;
+  let vScale = 1;
+
+  const { points } = shape;
   switch (shape.type) {
     case "rectangle":
-      return [end[0] - start[0], end[1] - start[1]];
+      hScale = (points[2][0] - points[0][0]) / MIN_LEN;
+      vScale = (points[2][1] - points[0][1]) / MIN_LEN;
+      break;
     case "triangle":
-      return [end[0] - start[0], end[1] - start[1]];
-    default:
-      return [1, 1];
+      hScale = points[0][0] - points[2][0];
+      vScale = points[0][1] - points[2][1];
+      break;
   }
+  return [hScale, vScale];
 }
 
 export default function RoughCanvas({
@@ -60,36 +67,15 @@ export default function RoughCanvas({
   onMouseUp,
   onMouseMove,
 }: Props) {
-  const shapeMap = useRef<ShapeMap>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-    //Keep the shape map updated
-    if (canvas.current && shapeMap.current) {
-      shapes.forEach((shape) => {
-        if (shapeMap.current && !shapeMap.current[shape.id]) {
-          shapeMap.current[shape.id] = {
-            drawable: generateDrawable(
-              canvas.current as HTMLCanvasElement,
-              shape
-            ),
-            scale: getScale(shape),
-          };
-        }
-      });
-    }
-  }, [shapes]);
-  useEffect(() => {
     const canvasEl = canvas.current;
-    if (canvasEl && shapeMap.current) {
-      shapes.forEach(({ id }) => {
-        if (shapeMap.current) {
-          const shape = shapeMap.current[id];
-          const roughCanvas = rough.canvas(canvasEl);
-          const ctx = canvasEl.getContext("2d") as CanvasRenderingContext2D;
-          ctx.scale(shape.scale[0], shape.scale[1]);
-          roughCanvas.draw(shapeMap.current[id].drawable);
-          ctx.scale(1, 1);
-        }
+    if (canvasEl) {
+      const ctx = canvasEl.getContext("2d") as CanvasRenderingContext2D;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      shapes.forEach(({ points }) => {
+        const roughCanvas = rough.canvas(canvasEl);
+        roughCanvas.polygon(points);
       });
     }
   }, [shapes]);

@@ -13,7 +13,7 @@ import Button from "./components/Button";
 import IconTray, { IconButton } from "./components/IconTray";
 import ColorPicker from "./components/ColorPicker";
 import { useAppDispatch, useAppSelector } from "./state/hook";
-import { draw, save } from "./state/reducer";
+import { draw, saveDrawing } from "./state/reducer";
 import RoughCanvas from "./RoughCanvas";
 
 type ShapeTypes = "rectangle" | "circle" | "triangle";
@@ -21,7 +21,6 @@ type Point = [number, number];
 
 function App(): JSX.Element {
   const { drawing, selected, shapes } = useAppSelector((state) => state);
-  console.log({ drawing, shapes });
   const dispatch = useAppDispatch();
   const [actionType, setActionType] = useState<ShapeTypes | "pointer" | null>();
   const [counter, setCounter] = useState(0);
@@ -63,8 +62,8 @@ function App(): JSX.Element {
   const handleMouseMove = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
+    e.preventDefault();
     if (drawing) {
-      e.preventDefault();
       if (actionType === "rectangle") {
         dispatch(
           draw({ ...drawing, points: generatePoints("rectangle", start, end) })
@@ -82,7 +81,7 @@ function App(): JSX.Element {
   ) => {
     e.preventDefault();
     if (drawing) {
-      dispatch(save());
+      dispatch(saveDrawing());
     }
     setStart([0, 0]);
     setEnd([0, 0]);
@@ -132,7 +131,10 @@ function App(): JSX.Element {
         </IconButton>
       </IconTray>
       <RoughCanvas
-        shapes={Object.keys(shapes).map((id) => shapes[id])}
+        shapes={Object.keys(shapes)
+          .map((id) => shapes[id])
+          .concat([drawing])
+          .filter((s) => s)}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}
@@ -145,7 +147,7 @@ function generatePoints(type: ShapeTypes, start: Point, end: Point): Point[] {
   if (type === "rectangle") {
     return [start, [end[0], start[1]], end, [start[0], end[1]]];
   } else if (type === "triangle") {
-    return [start, [end[0], start[1]], [end[0] / 2, end[1]]];
+    return [start, [end[0], start[1]], [(start[0] + end[0]) / 2, end[1]]];
   } else if (type === "circle") {
     return [start];
   } else {
