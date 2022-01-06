@@ -29,8 +29,8 @@ function App(): JSX.Element {
   const [start, setStart] = useState<Point>([0, 0]);
   const [end, setEnd] = useState<Point>([0, 0]);
 
-  const canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
-  if (drawing) canvasShapes.concat([drawing]);
+  let canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
+  if (drawing) canvasShapes.push(drawing);
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
