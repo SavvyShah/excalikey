@@ -20,7 +20,7 @@ type ShapeTypes = "rectangle" | "circle" | "triangle";
 type Point = [number, number];
 
 function App(): JSX.Element {
-  const { drawing, selected, shapes } = useAppSelector((state) => state);
+  const { drawing, shapes } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const [actionType, setActionType] = useState<ShapeTypes | "pointer" | null>();
   const [counter, setCounter] = useState(0);
@@ -134,7 +134,6 @@ function App(): JSX.Element {
         </IconButton>
       </IconTray>
       <RoughCanvas
-        shapes={canvasShapes}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}

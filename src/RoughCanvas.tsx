@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, useEffect, useRef } from "react";
 import { Drawable } from "roughjs/bin/core";
 import rough from "roughjs";
+import { useAppSelector } from "./state";
 
 const MIN_LEN = 50;
 
@@ -13,7 +14,6 @@ type Shape = {
 };
 
 type Props = {
-  shapes: Shape[];
   onMouseUp: MouseEventHandler<HTMLCanvasElement>;
   onMouseDown: MouseEventHandler<HTMLCanvasElement>;
   onMouseMove: MouseEventHandler<HTMLCanvasElement>;
@@ -26,23 +26,6 @@ type ShapeMap = {
   };
 };
 
-function generateDrawable(canvas: HTMLCanvasElement, shape: Shape): Drawable {
-  const roughCanvas = rough.canvas(canvas);
-  const generator = roughCanvas.generator;
-  const start = shape.points[0];
-  switch (shape.type) {
-    case "rectangle":
-      return generator.rectangle(start[0], start[1], MIN_LEN, MIN_LEN);
-    case "triangle":
-      return generator.polygon([
-        start,
-        [start[0] + MIN_LEN, start[1]],
-        [start[0] + 5, start[1] + MIN_LEN],
-      ]);
-    default:
-      return generator.polygon([]);
-  }
-}
 function getScale(shape: Shape): [number, number] {
   let hScale = 1;
   let vScale = 1;
@@ -62,23 +45,38 @@ function getScale(shape: Shape): [number, number] {
 }
 
 export default function RoughCanvas({
-  shapes,
   onMouseDown,
   onMouseUp,
   onMouseMove,
 }: Props) {
+  const { drawing, shapes } = useAppSelector((state) => state);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const shapeMapRef = useRef<ShapeMap>({});
+
   useEffect(() => {
     const canvasEl = canvas.current;
-    if (canvasEl) {
+    const shapeMap = shapeMapRef.current;
+    if (canvasEl && shapeMap) {
       const ctx = canvasEl.getContext("2d") as CanvasRenderingContext2D;
+      //Clear the canvas to draw shapes again
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      shapes.forEach(({ points }) => {
+      console.log({ drawing });
+      //If we are currently drawing a shape
+      if (drawing) {
+        const { id, points } = drawing;
         const roughCanvas = rough.canvas(canvasEl);
-        roughCanvas.polygon(points);
+        const drawable = roughCanvas.generator.polygon(points);
+        shapeMap[id] = { drawable, scale: [1, 1] };
+        roughCanvas.draw(drawable);
+      }
+      //Shapes already saved and needed to be drawn again
+      Object.keys(shapes).forEach((id) => {
+        console.log({ shapeMap });
+        const roughCanvas = rough.canvas(canvasEl);
+        roughCanvas.draw(shapeMap[id].drawable);
       });
     }
-  }, [shapes]);
+  }, [shapes, drawing]);
 
   return (
     <canvas
