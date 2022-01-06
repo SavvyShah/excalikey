@@ -13,14 +13,15 @@ import Button from "./components/Button";
 import IconTray, { IconButton } from "./components/IconTray";
 import ColorPicker from "./components/ColorPicker";
 import { useAppDispatch, useAppSelector } from "./state";
-import { draw, saveDrawing } from "./state/reducer";
+import { draw, saveDrawing, select } from "./state/reducer";
 import RoughCanvas from "./RoughCanvas";
+import checkPointInShape from "./check-inclusion";
 
 type ShapeTypes = "rectangle" | "circle" | "triangle";
 type Point = [number, number];
 
 function App(): JSX.Element {
-  const { drawing, shapes } = useAppSelector((state) => state);
+  const { drawing, shapes, selected } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const [actionType, setActionType] = useState<ShapeTypes | "pointer" | null>();
   const [counter, setCounter] = useState(0);
@@ -31,18 +32,21 @@ function App(): JSX.Element {
 
   let canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
   if (drawing) canvasShapes.push(drawing);
+  if (selected) canvasShapes.push(selected);
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
     if (actionType === "pointer") {
-      console.log(
-        "Select the shape",
-        "foreach shape call shapeContains(shape, point)"
+      const found = canvasShapes.find((shape) =>
+        checkPointInShape(
+          { type: "polygon", points: shape.points.map((p) => [p[0], -p[1]]) },
+          [e.clientX, -e.clientY]
+        )
       );
+      dispatch(select(found ? found.id : null));
     } else if (actionType === "rectangle") {
-      console.log("Set the start and end points");
       dispatch(
         draw({
           type: "rectangle",

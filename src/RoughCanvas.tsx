@@ -4,6 +4,7 @@ import rough from "roughjs";
 import { useAppSelector } from "./state";
 
 const MIN_LEN = 50;
+const SELECT_OFFSET = 10;
 
 type Point = [number, number];
 
@@ -49,7 +50,7 @@ export default function RoughCanvas({
   onMouseUp,
   onMouseMove,
 }: Props) {
-  const { drawing, shapes } = useAppSelector((state) => state);
+  const { drawing, shapes, selected } = useAppSelector((state) => state);
   const canvas = useRef<HTMLCanvasElement>(null);
   const shapeMapRef = useRef<ShapeMap>({});
 
@@ -60,7 +61,6 @@ export default function RoughCanvas({
       const ctx = canvasEl.getContext("2d") as CanvasRenderingContext2D;
       //Clear the canvas to draw shapes again
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      console.log({ drawing });
       //If we are currently drawing a shape
       if (drawing) {
         const { id, points } = drawing;
@@ -69,14 +69,25 @@ export default function RoughCanvas({
         shapeMap[id] = { drawable, scale: [1, 1] };
         roughCanvas.draw(drawable);
       }
+      if (selected) {
+        console.log({ selected });
+        const { points } = selected;
+        const roughCanvas = rough.canvas(canvasEl);
+        const minX = points.map((a) => a[0]).reduce((a, b) => Math.min(a, b));
+        const minY = points.map((a) => a[0]).reduce((a, b) => Math.min(a, b));
+        const maxX = points.map((a) => a[0]).reduce((a, b) => Math.max(a, b));
+        const maxY = points.map((a) => a[0]).reduce((a, b) => Math.max(a, b));
+        const s: Point = [minX - SELECT_OFFSET, minY + SELECT_OFFSET];
+        const e: Point = [maxX + SELECT_OFFSET, maxY + SELECT_OFFSET];
+        roughCanvas.polygon([s, [e[0], s[1]], e, [s[0], e[1]]]);
+      }
       //Shapes already saved and needed to be drawn again
       Object.keys(shapes).forEach((id) => {
-        console.log({ shapeMap });
         const roughCanvas = rough.canvas(canvasEl);
         roughCanvas.draw(shapeMap[id].drawable);
       });
     }
-  }, [shapes, drawing]);
+  }, [shapes, drawing, selected]);
 
   return (
     <canvas

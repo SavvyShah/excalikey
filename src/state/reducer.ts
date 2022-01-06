@@ -22,6 +22,7 @@ export const slice = createSlice({
   reducers: {
     draw: (state, action: PayloadAction<Shape>) => {
       state.drawing = action.payload;
+      state.selected = null;
     },
     saveDrawing: (state) => {
       const { drawing } = state;
@@ -30,9 +31,10 @@ export const slice = createSlice({
         state.drawing = null;
       }
     },
-    select: (state, action: PayloadAction<string>) => {
+    select: (state, action: PayloadAction<string | null>) => {
       const id = action.payload;
-      if (state.shapes[id]) {
+      if (id && state.shapes[id]) {
+        console.log({ id });
         state.selected = state.shapes[id];
       }
     },
