@@ -15,3 +15,5 @@ export type State = {
   selected: Shape | null;
   drawing: Shape | null;
 };
+
+export default {};

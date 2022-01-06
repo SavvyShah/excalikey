@@ -12,7 +12,7 @@ import Button from "./components/Button";
 
 import IconTray, { IconButton } from "./components/IconTray";
 import ColorPicker from "./components/ColorPicker";
-import { useAppDispatch, useAppSelector } from "./state/hook";
+import { useAppDispatch, useAppSelector } from "./state";
 import { draw, saveDrawing } from "./state/reducer";
 import RoughCanvas from "./RoughCanvas";
 
@@ -28,6 +28,9 @@ function App(): JSX.Element {
   const [stroke, setStroke] = useState<string>("black");
   const [start, setStart] = useState<Point>([0, 0]);
   const [end, setEnd] = useState<Point>([0, 0]);
+
+  const canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
+  if (drawing) canvasShapes.concat([drawing]);
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
@@ -131,10 +134,7 @@ function App(): JSX.Element {
         </IconButton>
       </IconTray>
       <RoughCanvas
-        shapes={Object.keys(shapes)
-          .map((id) => shapes[id])
-          .concat([drawing])
-          .filter((s) => s)}
+        shapes={canvasShapes}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
         onMouseDown={handleMouseDown}

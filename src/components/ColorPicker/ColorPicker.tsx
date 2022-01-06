@@ -31,12 +31,12 @@ const ColorPicker: React.FunctionComponent<Props> = ({
   icon,
   style,
 }: Props) => {
-  const inputRef = useRef<HTMLInputElement>();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Wrapper
       style={{ color: value, ...style }}
-      onClick={() => inputRef.current.click()}
+      onClick={() => inputRef!.current!.click()}
     >
       {icon}
       <input
