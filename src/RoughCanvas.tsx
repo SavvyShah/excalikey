@@ -69,6 +69,7 @@ export default function RoughCanvas({
         shapeMap[id] = { drawable, scale: [1, 1] };
         roughCanvas.draw(drawable);
       }
+      //If a shape is selected then draw a dashed box around it
       if (selected) {
         const { points } = selected;
         const roughCanvas = rough.canvas(canvasEl);
