@@ -61,11 +61,20 @@ export default function RoughCanvas({
       const ctx = canvasEl.getContext("2d") as CanvasRenderingContext2D;
       //Clear the canvas to draw shapes again
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      //Shapes already saved and needed to be drawn again
+      Object.keys(shapes).forEach((id) => {
+        const roughCanvas = rough.canvas(canvasEl);
+        roughCanvas.draw(shapeMap[id].drawable);
+      });
       //If we are currently drawing a shape
       if (drawing) {
-        const { id, points } = drawing;
+        const { id, points, strokeColor, fillColor } = drawing;
         const roughCanvas = rough.canvas(canvasEl);
-        const drawable = roughCanvas.generator.polygon(points);
+        const drawable = roughCanvas.generator.polygon(points, {
+          stroke: strokeColor,
+          fillStyle: "solid",
+          fill: fillColor,
+        });
         shapeMap[id] = { drawable, scale: [1, 1] };
         roughCanvas.draw(drawable);
       }
@@ -83,11 +92,6 @@ export default function RoughCanvas({
           strokeLineDash: [5, 5],
         });
       }
-      //Shapes already saved and needed to be drawn again
-      Object.keys(shapes).forEach((id) => {
-        const roughCanvas = rough.canvas(canvasEl);
-        roughCanvas.draw(shapeMap[id].drawable);
-      });
     }
   }, [shapes, drawing, selected]);
 

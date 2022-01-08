@@ -52,6 +52,8 @@ function App(): JSX.Element {
           type: "rectangle",
           id: `shape-${counter}`,
           points: generatePoints("rectangle", start, end),
+          fillColor: fill,
+          strokeColor: stroke,
         })
       );
     } else if (actionType === "triangle") {
@@ -60,6 +62,8 @@ function App(): JSX.Element {
           type: "triangle",
           id: `shape-${counter}`,
           points: generatePoints("triangle", start, end),
+          fillColor: fill,
+          strokeColor: stroke,
         })
       );
     }
@@ -73,11 +77,21 @@ function App(): JSX.Element {
     if (drawing) {
       if (actionType === "rectangle") {
         dispatch(
-          draw({ ...drawing, points: generatePoints("rectangle", start, end) })
+          draw({
+            ...drawing,
+            points: generatePoints("rectangle", start, end),
+            fillColor: fill,
+            strokeColor: stroke,
+          })
         );
       } else if (actionType === "triangle") {
         dispatch(
-          draw({ ...drawing, points: generatePoints("triangle", start, end) })
+          draw({
+            ...drawing,
+            points: generatePoints("triangle", start, end),
+            fillColor: fill,
+            strokeColor: stroke,
+          })
         );
       }
       setEnd([e.clientX, e.clientY]);

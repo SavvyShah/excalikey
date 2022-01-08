@@ -1,10 +1,12 @@
 export type Point = [number, number];
 
-export interface Shape {
+export type Shape = {
   points: Point[];
+  type: "rectangle" | "circle" | "triangle";
   id: string;
-  type: "rectangle" | "triangle" | "circle";
-}
+  fillColor: string;
+  strokeColor: string;
+};
 
 type ShapeDict = {
   [id: string]: Shape;

@@ -1,12 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import type { Point, State } from "./type";
-
-type Shape = {
-  points: Point[];
-  type: "rectangle" | "circle" | "triangle";
-  id: string;
-};
+import type { Shape, State } from "./type";
 
 // Define the initial state using that type
 const initialState: State = {
