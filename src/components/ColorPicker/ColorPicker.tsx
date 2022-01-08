@@ -10,6 +10,7 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   border-radius: 0.25rem;
+  position: relative;
   &:hover {
     background-color: #adb5bd;
   }
@@ -43,7 +44,7 @@ const ColorPicker: React.FunctionComponent<Props> = ({
         type="color"
         value={value || "#000000"}
         onChange={(e) => onChange(e.target.value)}
-        style={{ display: "none" }}
+        style={{ position: "absolute", top: 20, visibility: "hidden" }}
         ref={inputRef}
       />
     </Wrapper>
