@@ -70,16 +70,17 @@ export default function RoughCanvas({
         roughCanvas.draw(drawable);
       }
       if (selected) {
-        console.log({ selected });
         const { points } = selected;
         const roughCanvas = rough.canvas(canvasEl);
         const minX = points.map((a) => a[0]).reduce((a, b) => Math.min(a, b));
-        const minY = points.map((a) => a[0]).reduce((a, b) => Math.min(a, b));
+        const minY = points.map((a) => a[1]).reduce((a, b) => Math.min(a, b));
         const maxX = points.map((a) => a[0]).reduce((a, b) => Math.max(a, b));
-        const maxY = points.map((a) => a[0]).reduce((a, b) => Math.max(a, b));
-        const s: Point = [minX - SELECT_OFFSET, minY + SELECT_OFFSET];
+        const maxY = points.map((a) => a[1]).reduce((a, b) => Math.max(a, b));
+        const s: Point = [minX - SELECT_OFFSET, minY - SELECT_OFFSET];
         const e: Point = [maxX + SELECT_OFFSET, maxY + SELECT_OFFSET];
-        roughCanvas.polygon([s, [e[0], s[1]], e, [s[0], e[1]]]);
+        roughCanvas.rectangle(s[0], s[1], e[0] - s[0], e[1] - s[1], {
+          strokeLineDash: [5, 5],
+        });
       }
       //Shapes already saved and needed to be drawn again
       Object.keys(shapes).forEach((id) => {

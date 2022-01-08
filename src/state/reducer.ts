@@ -34,7 +34,6 @@ export const slice = createSlice({
     select: (state, action: PayloadAction<string | null>) => {
       const id = action.payload;
       if (id && state.shapes[id]) {
-        console.log({ id });
         state.selected = state.shapes[id];
       }
     },
