@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   trash,
@@ -16,23 +16,27 @@ import { useAppDispatch, useAppSelector } from "./state";
 import { draw, saveDrawing, select } from "./state/reducer";
 import RoughCanvas from "./RoughCanvas";
 import checkPointInShape from "./check-inclusion";
+import useKeyDownEvent from "./hooks/useKeyDownEvent";
 
 type ShapeTypes = "rectangle" | "circle" | "triangle";
 type Point = [number, number];
 
 function App(): JSX.Element {
-  const { drawing, shapes, selected } = useAppSelector((state) => state);
+  const { drawing, shapes } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const [actionType, setActionType] = useState<ShapeTypes | "pointer" | null>();
   const [counter, setCounter] = useState(0);
-  const [fill, setFill] = useState<string>("black");
+  const [fill, setFill] = useState<string>("white");
   const [stroke, setStroke] = useState<string>("black");
   const [start, setStart] = useState<Point>([0, 0]);
   const [end, setEnd] = useState<Point>([0, 0]);
 
-  let canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
-  if (drawing) canvasShapes.push(drawing);
-  if (selected) canvasShapes.push(selected);
+  const canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    console.log({ e });
+  };
+  useKeyDownEvent(handleKeyDown);
 
   const handleMouseDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>

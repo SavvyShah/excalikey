@@ -31,6 +31,13 @@ export const slice = createSlice({
         state.selected = state.shapes[id];
       }
     },
+    deleteSelected: (state) => {
+      const { selected } = state;
+      if (selected) {
+        delete state.shapes[selected.id];
+        state.selected = null;
+      }
+    },
   },
 });
 

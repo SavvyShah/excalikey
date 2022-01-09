@@ -1,4 +1,9 @@
-import React, { MouseEventHandler, useEffect, useRef } from "react";
+import React, {
+  KeyboardEventHandler,
+  MouseEventHandler,
+  useEffect,
+  useRef,
+} from "react";
 import { Drawable } from "roughjs/bin/core";
 import rough from "roughjs";
 import { useAppSelector } from "./state";
@@ -15,9 +20,9 @@ type Shape = {
 };
 
 type Props = {
-  onMouseUp: MouseEventHandler<HTMLCanvasElement>;
-  onMouseDown: MouseEventHandler<HTMLCanvasElement>;
-  onMouseMove: MouseEventHandler<HTMLCanvasElement>;
+  onMouseUp?: MouseEventHandler<HTMLCanvasElement>;
+  onMouseDown?: MouseEventHandler<HTMLCanvasElement>;
+  onMouseMove?: MouseEventHandler<HTMLCanvasElement>;
 };
 
 type ShapeMap = {
