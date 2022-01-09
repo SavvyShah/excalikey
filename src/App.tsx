@@ -13,7 +13,7 @@ import Button from "./components/Button";
 import IconTray, { IconButton } from "./components/IconTray";
 import ColorPicker from "./components/ColorPicker";
 import { useAppDispatch, useAppSelector } from "./state";
-import { draw, saveDrawing, select } from "./state/reducer";
+import { deleteSelected, draw, saveDrawing, select } from "./state/reducer";
 import RoughCanvas from "./RoughCanvas";
 import checkPointInShape from "./check-inclusion";
 import useKeyDownEvent from "./hooks/useKeyDownEvent";
@@ -34,7 +34,10 @@ function App(): JSX.Element {
   const canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    console.log({ e });
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      dispatch(deleteSelected());
+    }
   };
   useKeyDownEvent(handleKeyDown);
 

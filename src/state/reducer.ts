@@ -41,6 +41,6 @@ export const slice = createSlice({
   },
 });
 
-export const { draw, select, saveDrawing } = slice.actions;
+export const { draw, select, saveDrawing, deleteSelected } = slice.actions;
 
 export default slice.reducer;
