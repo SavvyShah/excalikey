@@ -9,6 +9,7 @@ const Button = styled.button<{ active: boolean }>`
   justify-content: center;
   align-items: center;
   border-radius: 0.25rem;
+  border: none;
   &:hover {
     background-color: #adb5bd;
   }

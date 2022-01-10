@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import {
-  trash,
-  triangle,
-  square,
-  fill as fillIcon,
-  pointer,
-} from "./components/icons";
-
 import Button from "./components/Button";
 
 import IconTray, { IconButton } from "./components/IconTray";
@@ -17,6 +9,13 @@ import { deleteSelected, draw, saveDrawing, select } from "./state/reducer";
 import RoughCanvas from "./RoughCanvas";
 import checkPointInShape from "./check-inclusion";
 import useKeyDownEvent from "./hooks/useKeyDownEvent";
+import {
+  Fill as FillIcon,
+  Pointer,
+  Rectangle,
+  Trash,
+  Triangle,
+} from "./components/icons";
 
 type ShapeTypes = "rectangle" | "circle" | "triangle";
 type Point = [number, number];
@@ -120,19 +119,19 @@ function App(): JSX.Element {
     <div>
       <IconTray style={{ position: "fixed" }}>
         <Button onClick={() => console.log("clear everything")} active={false}>
-          {trash}
+          <Trash />
         </Button>
         <ColorPicker
           style={{ padding: "7px", margin: "0.125rem" }}
           value={fill}
           onChange={(val) => setFill(val)}
-          icon={fillIcon}
+          icon={<FillIcon />}
         />
         <ColorPicker
           style={{ padding: "7px", margin: "0.125rem" }}
           value={stroke}
           onChange={(val) => setStroke(val)}
-          icon={square}
+          icon={<Rectangle />}
         />
       </IconTray>
       <IconTray style={{ position: "fixed", marginLeft: "45vw" }}>
@@ -141,21 +140,21 @@ function App(): JSX.Element {
           onClick={() => setActionType("pointer")}
           style={{ padding: "7px", margin: "0.125rem" }}
         >
-          {pointer}
+          <Pointer />
         </IconButton>
         <IconButton
           selected={actionType === "rectangle"}
           onClick={() => setActionType("rectangle")}
           style={{ padding: "7px", margin: "0.125rem" }}
         >
-          {square}
+          <Rectangle />
         </IconButton>
         <IconButton
           selected={actionType === "triangle"}
           onClick={() => setActionType("triangle")}
           style={{ padding: "7px", margin: "0.125rem" }}
         >
-          {triangle}
+          <Triangle />
         </IconButton>
       </IconTray>
       <RoughCanvas

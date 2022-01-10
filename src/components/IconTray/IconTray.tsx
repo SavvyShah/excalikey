@@ -19,6 +19,7 @@ export const IconButton = styled.button<{ selected: boolean }>`
   justify-content: center;
   align-items: center;
   border-radius: 0.25rem;
+  border: none;
   &:hover {
     background-color: #ced4da;
   }
