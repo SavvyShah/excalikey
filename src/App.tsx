@@ -45,12 +45,14 @@ function App(): JSX.Element {
   ) => {
     e.preventDefault();
     if (actionType === "pointer") {
-      const found = canvasShapes.find((shape) =>
-        checkPointInShape(
-          { type: "polygon", points: shape.points.map((p) => [p[0], -p[1]]) },
-          [e.clientX, -e.clientY]
-        )
-      );
+      const found = canvasShapes
+        .reverse()
+        .find((shape) =>
+          checkPointInShape(
+            { type: "polygon", points: shape.points.map((p) => [p[0], -p[1]]) },
+            [e.clientX, -e.clientY]
+          )
+        );
       dispatch(select(found ? found.id : null));
     } else if (actionType === "rectangle") {
       dispatch(
