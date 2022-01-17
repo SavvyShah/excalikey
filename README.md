@@ -16,7 +16,7 @@ You can draw various shapes and also change their fill and stroke after they are
 
 ### General features
 
-![General Features](/src/assets/docs/features-1.png)
+![General Features](/src/docs/features-1.png)
 
 From left to right the usage of icons is as follow
 
@@ -26,7 +26,7 @@ From left to right the usage of icons is as follow
 
 ### Select options
 
-![Select options](/src/assets/docs/features-2.png)
+![Select options](/src/docs/features-2.png)
 
 Apart from the general features we also have some options that you can choose to draw what you want
 
