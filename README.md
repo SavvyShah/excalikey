@@ -1,12 +1,12 @@
 # ExcaliKey
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/f5bf58ba-181e-4652-84b3-01ef390c8225/deploy-status)](https://app.netlify.com/sites/modest-jang-b2baeb/deploys)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/f5bf58ba-181e-4652-84b3-01ef390c8225/deploy-status)](https://app.netlify.com/sites/excalikey/deploys)
 
 I made this repository to understand how drawing apps work because I was very much inspired by Excalidraw and I wanted to build one myself. That's why the name Excalikey.
 
 I am grateful to this wonderful site on geometric algorithms [Geomalgorithms](https://geomalgorithms.com/) which has fantastic explanations for many algorithms. [I talk about this in a later section of this Readme.](#implementing-the-select-feature)
 
-[View App here](https://modest-jang-b2baeb.netlify.app/)
+[View App here](https://excalikey.netlify.app/)
 
 [View video walkthrough](https://www.screencast.com/t/sGdQswFn)
 
