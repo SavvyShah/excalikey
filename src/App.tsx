@@ -6,6 +6,7 @@ import IconTray, { IconButton } from "./components/IconTray";
 import ColorPicker from "./components/ColorPicker";
 import { useAppDispatch, useAppSelector } from "./state";
 import { deleteSelected, draw, saveDrawing, select } from "./state/reducer";
+import { Shape } from "./state/type";
 import RoughCanvas from "./RoughCanvas";
 import checkPointInShape from "./check-inclusion";
 import useKeyDownEvent from "./hooks/useKeyDownEvent";
@@ -16,12 +17,13 @@ import {
   Trash,
   Triangle,
 } from "./components/icons";
+import ContextMenu, { Action } from "./components/ContextMenu";
 
 type ShapeTypes = "rectangle" | "circle" | "triangle";
 type Point = [number, number];
 
 function App(): JSX.Element {
-  const { drawing, shapes } = useAppSelector((state) => state);
+  const { drawing, shapes, selected } = useAppSelector((state) => state);
   const dispatch = useAppDispatch();
   const [actionType, setActionType] = useState<ShapeTypes | "pointer" | null>();
   const [counter, setCounter] = useState(0);
@@ -29,8 +31,23 @@ function App(): JSX.Element {
   const [stroke, setStroke] = useState<string>("black");
   const [start, setStart] = useState<Point>([0, 0]);
   const [end, setEnd] = useState<Point>([0, 0]);
+  const [showMenu, setShowMenu] = useState(false);
 
   const canvasShapes = Object.keys(shapes).map((id) => shapes[id]);
+
+  const menuX = selected && selected.points[0][0];
+  const menuY = selected && selected.points[0][1];
+
+  const menuActions: Action[] = [
+    {
+      name: "Delete selected",
+      handler: () => {
+        setShowMenu(false);
+        dispatch(deleteSelected());
+      },
+      danger: true,
+    },
+  ];
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Backspace") {
@@ -43,14 +60,7 @@ function App(): JSX.Element {
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (actionType === "pointer") {
-      const found = canvasShapes
-        .reverse()
-        .find((shape) =>
-          checkPointInShape(
-            { type: "polygon", points: shape.points.map((p) => [p[0], -p[1]]) },
-            [e.clientX, -e.clientY]
-          )
-        );
+      const found = findShapeAtPoint(canvasShapes, [e.clientX, e.clientY]);
       dispatch(select(found ? found.id : null));
     } else if (actionType === "rectangle") {
       dispatch(
@@ -110,12 +120,23 @@ function App(): JSX.Element {
     setEnd([0, 0]);
     setCounter(counter + 1);
   };
-  const handleLongPress = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    console.log("Longpressed", e);
+  const handleLongPress = (point: Point) => {
+    const found = findShapeAtPoint(canvasShapes, point);
+    dispatch(select(found ? found.id : null));
+    setShowMenu(true);
   };
 
   return (
     <div>
+      {menuX && menuY && (
+        <ContextMenu
+          onClose={() => dispatch(select(null))}
+          x={menuX}
+          y={menuY}
+          z={3}
+          actions={menuActions}
+        />
+      )}
       <IconTray style={{ position: "fixed" }}>
         <Button onClick={() => console.log("clear everything")} active={false}>
           <Trash />
@@ -176,6 +197,15 @@ function generatePoints(type: ShapeTypes, start: Point, end: Point): Point[] {
   } else {
     return [];
   }
+}
+
+function findShapeAtPoint(shapes: Shape[], point: Point): Shape | undefined {
+  const found = shapes
+    .reverse()
+    .find((shape) =>
+      checkPointInShape({ type: "polygon", points: shape.points }, point)
+    );
+  return found;
 }
 
 export default App;

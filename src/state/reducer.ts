@@ -29,6 +29,8 @@ export const slice = createSlice({
       const id = action.payload;
       if (id && state.shapes[id]) {
         state.selected = state.shapes[id];
+      } else {
+        state.selected = null;
       }
     },
     deleteSelected: (state) => {

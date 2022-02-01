@@ -2,7 +2,7 @@ import React from "react";
 
 import styles from "./index.module.css";
 
-type Action = {
+export type Action = {
   name: string;
   danger: boolean;
   handler: () => void;
@@ -24,7 +24,7 @@ export default function ContextMenu({
   z = 2,
 }: Props) {
   return (
-    <div style={{ top: x, left: y, zIndex: z }} className={styles.contextMenu}>
+    <div style={{ top: y, left: x, zIndex: z }} className={styles.contextMenu}>
       {actions.map((action, i) =>
         action.danger ? (
           <div
