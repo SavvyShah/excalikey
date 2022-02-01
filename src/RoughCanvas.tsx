@@ -25,7 +25,7 @@ type Props = {
   onPointerUp?: PointerEventHandler<HTMLCanvasElement>;
   onPointerDown?: PointerEventHandler<HTMLCanvasElement>;
   onPointerMove?: PointerEventHandler<HTMLCanvasElement>;
-  onLongPress?: (Point) => void;
+  onLongPress?: (p: Point) => void;
 };
 
 type ShapeMap = {
