@@ -1,6 +1,6 @@
 import React, {
   KeyboardEventHandler,
-  MouseEventHandler,
+  PointerEventHandler,
   useEffect,
   useRef,
 } from "react";
@@ -20,9 +20,9 @@ type Shape = {
 };
 
 type Props = {
-  onMouseUp?: MouseEventHandler<HTMLCanvasElement>;
-  onMouseDown?: MouseEventHandler<HTMLCanvasElement>;
-  onMouseMove?: MouseEventHandler<HTMLCanvasElement>;
+  onPointerUp?: PointerEventHandler<HTMLCanvasElement>;
+  onPointerDown?: PointerEventHandler<HTMLCanvasElement>;
+  onPointerMove?: PointerEventHandler<HTMLCanvasElement>;
 };
 
 type ShapeMap = {
@@ -51,9 +51,9 @@ function getScale(shape: Shape): [number, number] {
 }
 
 export default function RoughCanvas({
-  onMouseDown,
-  onMouseUp,
-  onMouseMove,
+  onPointerDown,
+  onPointerUp,
+  onPointerMove,
 }: Props) {
   const { drawing, shapes, selected } = useAppSelector((state) => state);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -103,11 +103,12 @@ export default function RoughCanvas({
   return (
     <canvas
       ref={canvas}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onMouseMove={onMouseMove}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerMove={onPointerMove}
       width={window.innerWidth}
       height={window.innerHeight}
+      className="appCanvas"
     >
       Canvas not supported!
     </canvas>

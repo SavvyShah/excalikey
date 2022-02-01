@@ -40,7 +40,7 @@ function App(): JSX.Element {
   };
   useKeyDownEvent(handleKeyDown);
 
-  const handleMouseDown = (
+  const handlePointerDown = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
@@ -78,7 +78,7 @@ function App(): JSX.Element {
     setStart([e.clientX, e.clientY]);
     setEnd([e.clientX, e.clientY]);
   };
-  const handleMouseMove = (
+  const handlePointerMove = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
@@ -105,7 +105,7 @@ function App(): JSX.Element {
       setEnd([e.clientX, e.clientY]);
     }
   };
-  const handleMouseUp = (
+  const handlePointerUp = (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
   ) => {
     e.preventDefault();
@@ -160,9 +160,9 @@ function App(): JSX.Element {
         </IconButton>
       </IconTray>
       <RoughCanvas
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        onMouseDown={handleMouseDown}
+        onPointerUp={handlePointerUp}
+        onPointerMove={handlePointerMove}
+        onPointerDown={handlePointerDown}
       />
     </div>
   );
