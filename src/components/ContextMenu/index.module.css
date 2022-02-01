@@ -1,0 +1,23 @@
+.contextMenu {
+  max-width: max-content;
+  min-width: 200px;
+  border: 1px solid gray;
+  position: fixed;
+}
+.contextMenuItem {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid gray;
+}
+.contextMenuItem:last-child {
+  border-bottom: none;
+}
+.contextMenuItem:hover {
+  background: skyblue;
+}
+.contextMenuItemDanger {
+  composes: contextMenuItem;
+}
+.contextMenuItemDanger:hover {
+  background: crimson;
+  color: white;
+}
