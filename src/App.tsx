@@ -131,8 +131,8 @@ function App(): JSX.Element {
       {menuX && menuY && (
         <ContextMenu
           onClose={() => dispatch(select(null))}
-          x={menuX}
-          y={menuY}
+          x={30}
+          y={50}
           z={3}
           actions={menuActions}
         />

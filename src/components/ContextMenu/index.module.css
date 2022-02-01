@@ -7,17 +7,21 @@
 .contextMenuItem {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid gray;
+  user-select: none;
+  background-color: rgb(250, 250, 250);
 }
 .contextMenuItem:last-child {
   border-bottom: none;
 }
-.contextMenuItem:hover {
+.contextMenuItem:hover,
+.contextMenuItem:active {
   background: skyblue;
 }
 .contextMenuItemDanger {
   composes: contextMenuItem;
 }
-.contextMenuItemDanger:hover {
+.contextMenuItemDanger:hover,
+.contextMenuItemDanger:active {
   background: crimson;
   color: white;
 }
