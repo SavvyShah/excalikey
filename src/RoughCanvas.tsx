@@ -3,6 +3,7 @@ import React, {
   PointerEventHandler,
   useEffect,
   useRef,
+  useState,
 } from "react";
 import { Drawable } from "roughjs/bin/core";
 import rough from "roughjs";
@@ -10,6 +11,7 @@ import { useAppSelector } from "./state";
 
 const MIN_LEN = 50;
 const SELECT_OFFSET = 10;
+const LONGPRESS_DURATION = 1000;
 
 type Point = [number, number];
 
@@ -23,6 +25,7 @@ type Props = {
   onPointerUp?: PointerEventHandler<HTMLCanvasElement>;
   onPointerDown?: PointerEventHandler<HTMLCanvasElement>;
   onPointerMove?: PointerEventHandler<HTMLCanvasElement>;
+  onLongPress?: (Point) => void;
 };
 
 type ShapeMap = {
@@ -54,10 +57,40 @@ export default function RoughCanvas({
   onPointerDown,
   onPointerUp,
   onPointerMove,
+  onLongPress,
 }: Props) {
   const { drawing, shapes, selected } = useAppSelector((state) => state);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const [longPressPoint, setLongPressPoint] = useState<Point | null>(null);
   const shapeMapRef = useRef<ShapeMap>({});
+
+  useEffect(() => {
+    if (longPressPoint && onLongPress) {
+      const timeoutId = setTimeout(() => {
+        onLongPress(longPressPoint);
+      }, LONGPRESS_DURATION);
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [longPressPoint]);
+  const handlePointerDown: PointerEventHandler<HTMLCanvasElement> = (e) => {
+    if (onPointerDown) {
+      setLongPressPoint([e.clientX, e.clientY]);
+      onPointerDown(e);
+    }
+  };
+  const handlePointerUp: PointerEventHandler<HTMLCanvasElement> = (e) => {
+    if (onPointerUp) {
+      setLongPressPoint(null);
+      onPointerUp(e);
+    }
+  };
+  const handlePointerMove: PointerEventHandler<HTMLCanvasElement> = (e) => {
+    if (onPointerMove) {
+      setLongPressPoint(null);
+      onPointerMove(e);
+    }
+  };
 
   useEffect(() => {
     const canvasEl = canvas.current;
@@ -103,9 +136,9 @@ export default function RoughCanvas({
   return (
     <canvas
       ref={canvas}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
-      onPointerMove={onPointerMove}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerMove={handlePointerMove}
       width={window.innerWidth}
       height={window.innerHeight}
       className="appCanvas"

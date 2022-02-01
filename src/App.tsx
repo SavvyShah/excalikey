@@ -40,9 +40,7 @@ function App(): JSX.Element {
   };
   useKeyDownEvent(handleKeyDown);
 
-  const handlePointerDown = (
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-  ) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (actionType === "pointer") {
       const found = canvasShapes
@@ -78,9 +76,7 @@ function App(): JSX.Element {
     setStart([e.clientX, e.clientY]);
     setEnd([e.clientX, e.clientY]);
   };
-  const handlePointerMove = (
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-  ) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (drawing) {
       if (actionType === "rectangle") {
@@ -105,9 +101,7 @@ function App(): JSX.Element {
       setEnd([e.clientX, e.clientY]);
     }
   };
-  const handlePointerUp = (
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-  ) => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     if (drawing) {
       dispatch(saveDrawing());
@@ -115,6 +109,9 @@ function App(): JSX.Element {
     setStart([0, 0]);
     setEnd([0, 0]);
     setCounter(counter + 1);
+  };
+  const handleLongPress = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    console.log("Longpressed", e);
   };
 
   return (
@@ -163,6 +160,7 @@ function App(): JSX.Element {
         onPointerUp={handlePointerUp}
         onPointerMove={handlePointerMove}
         onPointerDown={handlePointerDown}
+        onLongPress={handleLongPress}
       />
     </div>
   );
